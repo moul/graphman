@@ -7,12 +7,19 @@ import (
 
 type Node interface {
 	fmt.Stringer
+
+	ID() string
+	Data() interface{}
 }
 
 type node struct {
 	id   string
 	data interface{}
 }
+
+func (n *node) ID() string { return n.id }
+
+func (n *node) Data() interface{} { return n.data }
 
 func (n *node) String() string {
 	out, _ := json.Marshal(n.data)
