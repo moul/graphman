@@ -1,13 +1,15 @@
 package graphman
 
 import (
+	"fmt"
 	"strings"
 )
 
 type Graph interface {
+	fmt.Stringer
+
 	AddNode(Node) error
 	AddEdge(Edge) error
-	String() string
 }
 
 type graph struct {

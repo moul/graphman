@@ -3,7 +3,7 @@ package graphman
 import "fmt"
 
 type Edge interface {
-	String() string
+	fmt.Stringer
 }
 
 type edge struct {

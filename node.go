@@ -6,7 +6,7 @@ import (
 )
 
 type Node interface {
-	String() string
+	fmt.Stringer
 }
 
 type node struct {
