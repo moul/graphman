@@ -5,7 +5,7 @@ import "fmt"
 type Edge interface {
 	fmt.Stringer
 
-	HasNode(id string) bool
+	HasVertex(id string) bool
 	IDs() []string
 	OtherEnd(id string) string
 }
@@ -18,7 +18,7 @@ func (e *edge) String() string {
 	return fmt.Sprintf("%s->%s", e.a, e.b)
 }
 
-func (e *edge) HasNode(id string) bool {
+func (e *edge) HasVertex(id string) bool {
 	return e.a == id || e.b == id
 }
 

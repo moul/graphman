@@ -9,9 +9,9 @@ import (
 type Graph interface {
 	fmt.Stringer
 
-	AddNode(Node) error
+	AddVertex(Vertex) error
 	AddEdge(Edge) error
-	Nodes() []Node
+	Vertices() []Vertex
 	Edges() []Edge
 
 	DirectConnectionsFor(id string) []string
@@ -25,18 +25,18 @@ type Graph interface {
 }
 
 type graph struct {
-	nodes []Node
-	edges []Edge
+	vertices []Vertex
+	edges    []Edge
 }
 
-func (g *graph) Nodes() []Node { return g.nodes }
+func (g *graph) Vertices() []Vertex { return g.vertices }
 
 func (g *graph) Edges() []Edge { return g.edges }
 
 func (g *graph) String() string {
 	lines := []string{}
-	for _, node := range g.nodes {
-		lines = append(lines, node.String())
+	for _, vertex := range g.vertices {
+		lines = append(lines, vertex.String())
 	}
 	for _, edge := range g.edges {
 		lines = append(lines, edge.String())
@@ -44,8 +44,8 @@ func (g *graph) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func (g *graph) AddNode(n Node) error {
-	g.nodes = append(g.nodes, n)
+func (g *graph) AddVertex(n Vertex) error {
+	g.vertices = append(g.vertices, n)
 	return nil
 }
 
@@ -57,7 +57,7 @@ func (g *graph) AddEdge(e Edge) error {
 func (g *graph) EdgesFor(id string) []Edge {
 	edges := make([]Edge, 0)
 	for _, edge := range g.edges {
-		if edge.HasNode(id) {
+		if edge.HasVertex(id) {
 			edges = append(edges, edge)
 		}
 	}

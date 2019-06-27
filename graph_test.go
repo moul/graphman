@@ -4,10 +4,10 @@ import "fmt"
 
 func Example_graph() {
 	graph := New()
-	graph.AddNode(NewNode("A", 42))
-	graph.AddNode(NewNode("B", "hello world"))
-	graph.AddNode(NewNode("C", []string{"a", "b", "c"}))
-	graph.AddNode(NewNode("D", nil))
+	graph.AddVertex(NewVertex("A", 42))
+	graph.AddVertex(NewVertex("B", "hello world"))
+	graph.AddVertex(NewVertex("C", []string{"a", "b", "c"}))
+	graph.AddVertex(NewVertex("D", nil))
 	graph.AddEdge(NewEdge("A", "B"))
 	graph.AddEdge(NewEdge("B", "C"))
 	graph.AddEdge(NewEdge("C", "D"))
@@ -27,23 +27,23 @@ func Example_graph() {
 func Example_connections() {
 	// init graph
 	graph := New()
-	graph.AddNode(NewNode("A", nil))
-	graph.AddNode(NewNode("B", nil))
-	graph.AddNode(NewNode("C", nil))
-	graph.AddNode(NewNode("D", nil))
-	graph.AddNode(NewNode("E", nil))
-	graph.AddNode(NewNode("F", nil))
+	graph.AddVertex(NewVertex("A", nil))
+	graph.AddVertex(NewVertex("B", nil))
+	graph.AddVertex(NewVertex("C", nil))
+	graph.AddVertex(NewVertex("D", nil))
+	graph.AddVertex(NewVertex("E", nil))
+	graph.AddVertex(NewVertex("F", nil))
 	graph.AddEdge(NewEdge("A", "B"))
 	graph.AddEdge(NewEdge("B", "C"))
 	graph.AddEdge(NewEdge("D", "E"))
-	for _, a := range graph.Nodes() {
+	for _, a := range graph.Vertices() {
 		fmt.Printf("=== %s ===\n", a.ID())
 		fmt.Printf("edges: %v\n", graph.EdgesFor(a.ID()))
 		fmt.Printf("direct connections: %v\n", graph.DirectConnectionsFor(a.ID()))
 		fmt.Printf("all connections: %v\n", graph.AllConnectionsFor(a.ID()))
 		fmt.Printf("all shortest paths: %v\n", graph.AllShortestPaths(a.ID()))
 
-		for _, b := range graph.Nodes() {
+		for _, b := range graph.Vertices() {
 			if a.ID() != b.ID() {
 				fmt.Printf(
 					"%s & %s, are connected: %v, directly: %v, with the shortest path: %v\n",
@@ -129,10 +129,10 @@ func Example_bigGraph() {
 	// init graph
 	graph := New()
 	amount := 100
-	startNode := 42
+	startVertex := 42
 
 	for i := 0; i <= amount; i++ {
-		graph.AddNode(NewNode(fmt.Sprintf("%d", i), nil))
+		graph.AddVertex(NewVertex(fmt.Sprintf("%d", i), nil))
 	}
 	for i := 0; i <= amount-1; i++ {
 		graph.AddEdge(NewEdge(
@@ -141,12 +141,12 @@ func Example_bigGraph() {
 		))
 	}
 
-	fmt.Println("edges", graph.EdgesFor(fmt.Sprintf("%d", startNode)))
-	fmt.Println("direct connections", graph.DirectConnectionsFor(fmt.Sprintf("%d", startNode)))
-	fmt.Println("all connections", graph.AllConnectionsFor(fmt.Sprintf("%d", startNode)))
+	fmt.Println("edges", graph.EdgesFor(fmt.Sprintf("%d", startVertex)))
+	fmt.Println("direct connections", graph.DirectConnectionsFor(fmt.Sprintf("%d", startVertex)))
+	fmt.Println("all connections", graph.AllConnectionsFor(fmt.Sprintf("%d", startVertex)))
 
-	fmt.Println(graph.ShortestPath(fmt.Sprintf("%d", startNode), fmt.Sprintf("%d", amount)))
-	fmt.Println(graph.ShortestPath(fmt.Sprintf("%d", startNode), "0"))
+	fmt.Println(graph.ShortestPath(fmt.Sprintf("%d", startVertex), fmt.Sprintf("%d", amount)))
+	fmt.Println(graph.ShortestPath(fmt.Sprintf("%d", startVertex), "0"))
 
 	// Output:
 	// edges [41->42 42->43]
