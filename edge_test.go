@@ -2,7 +2,7 @@ package graphman
 
 import "fmt"
 
-func ExampleNewEdge() {
+func ExampleEdge() {
 	va := &Vertex{ID: "aaa"}
 	vb := &Vertex{ID: "bbb"}
 	vc := &Vertex{ID: "ccc", Attrs: Attrs{"ddd": "eee"}}

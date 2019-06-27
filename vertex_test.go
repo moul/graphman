@@ -2,7 +2,7 @@ package graphman
 
 import "fmt"
 
-func ExampleNewVertex_simple() {
+func ExampleVertex_simple() {
 	v := &Vertex{ID: "A"}
 	fmt.Println(v)
 	fmt.Println(v.ID)
@@ -11,7 +11,7 @@ func ExampleNewVertex_simple() {
 	// A
 }
 
-func ExampleNewVertex_withAttrs() {
+func ExampleVertex_withAttrs() {
 	v := &Vertex{
 		ID: "A",
 		Attrs: Attrs{

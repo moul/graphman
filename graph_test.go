@@ -2,7 +2,7 @@ package graphman
 
 import "fmt"
 
-func ExampleNewGraph_simple() {
+func ExampleGraph_simple() {
 	va := &Vertex{ID: "A"}
 	vb := &Vertex{ID: "B"}
 	vc := &Vertex{ID: "C"}
@@ -21,7 +21,7 @@ func ExampleNewGraph_simple() {
 	// Output: {(A,B),(B,C),(E,F),D}
 }
 
-func ExampleNewGraph_big() {
+func ExampleGraph_big() {
 	graph := Graph{}
 	amount := 100
 

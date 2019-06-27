@@ -2,7 +2,7 @@ package graphman
 
 import "fmt"
 
-func ExampleNewPath() {
+func ExamplePath() {
 	va := &Vertex{ID: "A"}
 	vb := &Vertex{ID: "B"}
 	vc := &Vertex{ID: "C"}
