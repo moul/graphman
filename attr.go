@@ -1,18 +1,29 @@
 package graphman
 
-type Attr interface {
-	Key() interface{}
-	Value() interface{}
-	SetValue(interface{})
+import (
+	"fmt"
+	"sort"
+	"strings"
+)
+
+type Attrs map[string]interface{}
+
+func (a Attrs) Has(key string) bool {
+	_, found := a[key]
+	return found
 }
 
-// attr uses a standard Go slice for internal storage.
-type attr [2]interface{}
+func (a Attrs) IsEmpty() bool { return len(a) == 0 }
 
-func (a *attr) Key() interface{}              { return a[0] }
-func (a *attr) Value() interface{}            { return a[1] }
-func (a *attr) SetValue(newValue interface{}) { a[1] = newValue }
+func (a Attrs) String() string {
+	if len(a) == 0 {
+		return ""
+	}
+	elems := []string{}
+	for key, val := range a {
+		elems = append(elems, fmt.Sprintf("%v:%v", key, val))
+	}
+	sort.Strings(elems)
+	return fmt.Sprintf("[%s]", strings.Join(elems, ","))
 
-func NewAttr(key, value interface{}) Attr {
-	return &attr{key, value}
 }

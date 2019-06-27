@@ -2,40 +2,36 @@ package graphman
 
 import "fmt"
 
-type Edge interface {
-	fmt.Stringer
-
-	Src() Vertex
-	Dst() Vertex
-	Vertices() []Vertex
-	HasVertex(Vertex) bool
-	OtherVertex(Vertex) Vertex
+type Edge struct {
+	Src   *Vertex
+	Dst   *Vertex
+	Attrs Attrs
 }
 
-type edge [2]Vertex
-
-func (e *edge) Src() Vertex        { return e[0] }
-func (e *edge) Dst() Vertex        { return e[1] }
-func (e *edge) Vertices() []Vertex { return []Vertex{e.Src(), e.Dst()} }
-
-func (e *edge) String() string {
-	return fmt.Sprintf("(%s,%s)", e.Src().ID(), e.Dst().ID())
+func (e *Edge) Vertices() Vertices {
+	return Vertices{e.Src, e.Dst}
 }
 
-func (e *edge) HasVertex(v Vertex) bool {
-	return e.Src() == v || e.Dst() == v
-}
-
-func (e *edge) OtherVertex(v Vertex) Vertex {
-	if e.Src() == v {
-		return e.Dst()
+func (e *Edge) String() string {
+	ret := fmt.Sprintf("(%s,%s)", e.Src.ID, e.Dst.ID)
+	if !e.Attrs.IsEmpty() {
+		ret += fmt.Sprintf("[%s]", e.Attrs)
 	}
-	if e.Dst() == v {
-		return e.Src()
+	return ret
+}
+
+func (e *Edge) HasVertex(id string) bool {
+	return e.Src.ID == id || e.Dst.ID == id
+}
+
+func (e *Edge) OtherVertex(id string) *Vertex {
+	if e.Src.ID == id {
+		return e.Dst
+	}
+	if e.Dst.ID == id {
+		return e.Src
 	}
 	return nil
 }
 
-func NewEdge(src, dst Vertex) Edge {
-	return &edge{src, dst}
-}
+type Edges []*Edge
