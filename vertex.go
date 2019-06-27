@@ -109,3 +109,9 @@ func (n *vertex) String() string {
 func (n *vertex) Edges() []Edge {
 	return n.edges
 }
+
+type VertexSorter []Vertex
+
+func (v VertexSorter) Len() int           { return len(v) }
+func (v VertexSorter) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
+func (v VertexSorter) Less(i, j int) bool { return v[i].ID() < v[j].ID() }
