@@ -1,11 +1,6 @@
 package graphman
 
-import (
-	"fmt"
-	"sort"
-	"strings"
-)
-
+/*
 type Graph interface {
 	fmt.Stringer
 
@@ -141,3 +136,4 @@ func (g *graph) AllConnectionsFor(id string) []string {
 func New() Graph {
 	return &graph{}
 }
+*/

@@ -1,9 +1,6 @@
 package graphman
 
-import (
-	"fmt"
-	"strings"
-)
+/*
 
 type Path interface {
 	fmt.Stringer
@@ -58,3 +55,5 @@ func (p *path) Clone() Path {
 func (p *path) AddTail(edge Edge) {
 	p.edges = append(p.edges, edge)
 }
+
+*/
