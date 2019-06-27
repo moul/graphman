@@ -5,51 +5,39 @@ import (
 	"strings"
 )
 
-type Path interface {
-	fmt.Stringer
+type Path []*Edge
 
-	Length() int
-	Append(Edge)
-	Edges() []Edge
-	FirstVertex() Vertex
-	LastVertex() Vertex
-	FirstEdge() Edge
-	LastEdge() Edge
-}
-
-type path struct {
-	edges []Edge
-}
-
-func (p *path) Length() int {
-	return len(p.edges)
-}
-
-func (p *path) String() string {
-	ids := []string{p.FirstVertex().ID()}
-	for _, edge := range p.edges {
-		ids = append(ids, edge.Dst().ID())
+func (p Path) String() string {
+	vertices := p.Vertices()
+	ids := []string{}
+	for _, vertex := range vertices {
+		ids = append(ids, vertex.ID)
 	}
-	return fmt.Sprintf("(%s)", strings.Join(ids, ","))
-}
-
-func (p *path) Edges() []Edge {
-	return p.edges
-}
-
-func NewPath(firstEdge Edge) Path {
-	return &path{
-		edges: []Edge{
-			firstEdge,
-		},
+	ret := fmt.Sprintf("(%s)", strings.Join(ids, ","))
+	if !p.IsValid() {
+		ret += "[INVALID]"
 	}
+	return ret
 }
 
-func (p *path) Append(edge Edge) {
-	p.edges = append(p.edges, edge)
+func (p Path) IsValid() bool {
+	for i := 0; i < len(p)-1; i++ {
+		if p[i].Dst != p[i+1].Src {
+			return false
+		}
+	}
+	return true
 }
 
-func (p *path) FirstEdge() Edge     { return p.edges[0] }
-func (p *path) LastEdge() Edge      { return p.edges[len(p.edges)-1] }
-func (p *path) FirstVertex() Vertex { return p.FirstEdge().Src() }
-func (p *path) LastVertex() Vertex  { return p.LastEdge().Dst() }
+func (p Path) Vertices() Vertices {
+	vertices := Vertices{p.FirstVertex()}
+	for _, edge := range p {
+		vertices = append(vertices, edge.Dst)
+	}
+	return vertices
+}
+
+func (p Path) FirstEdge() *Edge     { return p[0] }
+func (p Path) LastEdge() *Edge      { return p[len(p)-1] }
+func (p Path) FirstVertex() *Vertex { return p.FirstEdge().Src }
+func (p Path) LastVertex() *Vertex  { return p.LastEdge().Dst }

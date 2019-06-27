@@ -3,13 +3,12 @@ package graphman
 import "fmt"
 
 func ExampleNewEdge() {
-	va := NewVertex("aaa")
-	vb := NewVertex("bbb")
-	vc := NewVertex("ccc")
-	vc.AddAttr(NewAttr("ddd", "eee"))
+	va := &Vertex{ID: "aaa"}
+	vb := &Vertex{ID: "bbb"}
+	vc := &Vertex{ID: "ccc", Attrs: Attrs{"ddd": "eee"}}
 
-	eab := NewEdge(va, vb)
-	eac := NewEdge(va, vc)
+	eab := &Edge{Src: va, Dst: vb}
+	eac := &Edge{Src: va, Dst: vc}
 
 	fmt.Println(eab)
 	fmt.Println(eac)

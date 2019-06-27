@@ -3,37 +3,39 @@ package graphman
 import "fmt"
 
 func ExampleNewGraph_simple() {
-	va := NewVertex("A")
-	vb := NewVertex("B")
-	vc := NewVertex("C")
-	vd := NewVertex("D")
-	ve := NewVertex("E")
-	vf := NewVertex("F")
-	graph := NewGraph()
-	graph.AddVertex(va, vb, vc, vd, ve, vf)
-	graph.AddEdge(
-		NewEdge(va, vb),
-		NewEdge(vb, vc),
-		NewEdge(ve, vf),
-	)
+	va := &Vertex{ID: "A"}
+	vb := &Vertex{ID: "B"}
+	vc := &Vertex{ID: "C"}
+	vd := &Vertex{ID: "D"}
+	ve := &Vertex{ID: "E"}
+	vf := &Vertex{ID: "F"}
+	graph := Graph{
+		Vertices: Vertices{va, vb, vc, vd, ve, vf},
+		Edges: Edges{
+			{Src: va, Dst: vb},
+			{Src: vb, Dst: vc},
+			{Src: ve, Dst: vf},
+		},
+	}
 	fmt.Println(graph)
 	// Output: {(A,B),(B,C),(E,F),D}
 }
 
 func ExampleNewGraph_big() {
-	graph := NewGraph()
+	graph := Graph{}
 	amount := 100
 
-	vertices := []Vertex{}
-
 	for i := 0; i <= amount; i++ {
-		vertex := NewVertex(fmt.Sprintf("%d", i))
-		vertices = append(vertices, vertex)
+		vertex := &Vertex{ID: fmt.Sprintf("%d", i)}
+		graph.Vertices = append(graph.Vertices, vertex)
 	}
-	graph.AddVertex(vertices...)
 
 	for i := 0; i <= amount-1; i++ {
-		graph.AddEdge(NewEdge(vertices[i], vertices[i+1]))
+		edge := &Edge{
+			Src: graph.Vertices[i],
+			Dst: graph.Vertices[i+1],
+		}
+		graph.Edges = append(graph.Edges, edge)
 	}
 
 	fmt.Println(graph)

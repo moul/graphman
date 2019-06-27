@@ -2,27 +2,28 @@ package graphman
 
 import "fmt"
 
-func ExampleNewVertex() {
-	va := NewVertex("aaa")
-	fmt.Println(va)
-	fmt.Println(va.ID())
+func ExampleNewVertex_simple() {
+	v := &Vertex{ID: "A"}
+	fmt.Println(v)
+	fmt.Println(v.ID)
+	// Output:
+	// A
+	// A
+}
 
-	fmt.Println()
-
-	vb := NewVertex("bbb")
-	vb.AddAttr(
-		NewAttr("ccc", "ddd"),
-		NewAttr(42, []string{"eee", "fff"}),
-		NewAttr("ggg", "hhh"),
-	)
-	vb.DelAttr("ggg", "iii")
-	fmt.Println(vb)
-	fmt.Println(vb.ID())
+func ExampleNewVertex_withAttrs() {
+	v := &Vertex{
+		ID: "A",
+		Attrs: Attrs{
+			"ccc": "ddd",
+			"eee": []string{"fff", "ggg"},
+			"hhh": 42,
+		},
+	}
+	fmt.Println(v)
+	fmt.Println(v.ID)
 
 	// Output:
-	// aaa
-	// aaa
-	//
-	// bbb(ccc:ddd,42:[eee fff])
-	// bbb
+	// A[[ccc:ddd,eee:[fff ggg],hhh:42]]
+	// A
 }
