@@ -5,37 +5,37 @@ import "fmt"
 type Edge interface {
 	fmt.Stringer
 
-	HasNode(id string) bool
-	IDs() []string
-	OtherEnd(id string) string
+	Src() Vertex
+	Dst() Vertex
+	Vertices() []Vertex
+	HasVertex(Vertex) bool
+	OtherVertex(Vertex) Vertex
 }
 
-type edge struct {
-	a, b string
-}
+type edge [2]Vertex
+
+func (e *edge) Src() Vertex        { return e[0] }
+func (e *edge) Dst() Vertex        { return e[1] }
+func (e *edge) Vertices() []Vertex { return []Vertex{e.Src(), e.Dst()} }
 
 func (e *edge) String() string {
-	return fmt.Sprintf("%s->%s", e.a, e.b)
+	return fmt.Sprintf("(%s,%s)", e.Src().ID(), e.Dst().ID())
 }
 
-func (e *edge) HasNode(id string) bool {
-	return e.a == id || e.b == id
+func (e *edge) HasVertex(v Vertex) bool {
+	return e.Src() == v || e.Dst() == v
 }
 
-func (e *edge) IDs() []string {
-	return []string{e.a, e.b}
-}
-
-func (e *edge) OtherEnd(id string) string {
-	if e.a == id {
-		return e.b
+func (e *edge) OtherVertex(v Vertex) Vertex {
+	if e.Src() == v {
+		return e.Dst()
 	}
-	if e.b == id {
-		return e.a
+	if e.Dst() == v {
+		return e.Src()
 	}
-	return ""
+	return nil
 }
 
-func NewEdge(a, b string) Edge {
-	return &edge{a: a, b: b}
+func NewEdge(src, dst Vertex) Edge {
+	return &edge{src, dst}
 }

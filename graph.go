@@ -9,135 +9,63 @@ import (
 type Graph interface {
 	fmt.Stringer
 
-	AddNode(Node) error
-	AddEdge(Edge) error
-	Nodes() []Node
+	AddVertex(...Vertex)
+	AddEdge(...Edge)
+	Vertices() []Vertex
 	Edges() []Edge
-
-	DirectConnectionsFor(id string) []string
-	EdgesFor(id string) []Edge
-	AllConnectionsFor(id string) []string
-	AreConnected(a, b string) bool
-	AreDirectlyConnected(a, b string) bool
-	AllShortestPaths(id string) map[string]Path
-	ShortestPath(a, b string) Path
-	// AllPaths(a, b string) []Path
+	StandaloneVertices() []Vertex
 }
 
 type graph struct {
-	nodes []Node
-	edges []Edge
+	vertices []Vertex
+	edges    []Edge
 }
 
-func (g *graph) Nodes() []Node { return g.nodes }
+func NewGraph() Graph {
+	return &graph{
+		vertices: make([]Vertex, 0),
+		edges:    make([]Edge, 0),
+	}
+}
 
-func (g *graph) Edges() []Edge { return g.edges }
+func (g *graph) Vertices() []Vertex { return g.vertices }
+func (g *graph) Edges() []Edge      { return g.edges }
+
+func (g *graph) StandaloneVertices() []Vertex {
+	standaloneVertices := map[string]Vertex{}
+	for _, vertex := range g.vertices {
+		standaloneVertices[vertex.ID()] = vertex
+	}
+	for _, edge := range g.edges {
+		standaloneVertices[edge.Src().ID()] = nil
+		standaloneVertices[edge.Dst().ID()] = nil
+	}
+	filtered := []Vertex{}
+	for _, vertex := range standaloneVertices {
+		if vertex != nil {
+			filtered = append(filtered, vertex)
+		}
+	}
+
+	sort.Sort(VertexSorter(filtered))
+	return filtered
+}
 
 func (g *graph) String() string {
-	lines := []string{}
-	for _, node := range g.nodes {
-		lines = append(lines, node.String())
-	}
+	elems := []string{}
 	for _, edge := range g.edges {
-		lines = append(lines, edge.String())
+		elems = append(elems, edge.String())
 	}
-	return strings.Join(lines, "\n")
-}
-
-func (g *graph) AddNode(n Node) error {
-	g.nodes = append(g.nodes, n)
-	return nil
-}
-
-func (g *graph) AddEdge(e Edge) error {
-	g.edges = append(g.edges, e)
-	return nil
-}
-
-func (g *graph) EdgesFor(id string) []Edge {
-	edges := make([]Edge, 0)
-	for _, edge := range g.edges {
-		if edge.HasNode(id) {
-			edges = append(edges, edge)
-		}
+	for _, vertex := range g.StandaloneVertices() {
+		elems = append(elems, vertex.ID())
 	}
-	return edges
+	return fmt.Sprintf("{%s}", strings.Join(elems, ","))
 }
 
-func (g *graph) DirectConnectionsFor(id string) []string {
-	set := make(map[string]struct{})
-	for _, edge := range g.EdgesFor(id) {
-		for _, end := range edge.IDs() {
-			if id == end {
-				continue
-			}
-			set[end] = struct{}{}
-		}
-	}
-	ids := []string{}
-	for id := range set {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
-	return ids
+func (g *graph) AddVertex(vertices ...Vertex) {
+	g.vertices = append(g.vertices, vertices...)
 }
 
-func (g *graph) AreDirectlyConnected(a, b string) bool {
-	for _, connection := range g.DirectConnectionsFor(a) {
-		if connection == b {
-			return true
-		}
-	}
-	return false
-}
-
-func (g *graph) AreConnected(a, b string) bool {
-	for _, connection := range g.AllConnectionsFor(a) {
-		if connection == b {
-			return true
-		}
-	}
-	return false
-}
-
-func (g *graph) ShortestPath(a, b string) Path {
-	for end, path := range g.AllShortestPaths(a) {
-		if end == b {
-			return path
-		}
-	}
-	return nil
-}
-
-func (g *graph) AllShortestPaths(id string) map[string]Path {
-	paths := map[string]Path{}
-	paths[id] = newPath(id)
-	g.allShortestPathsRec(paths, id, 0)
-	return paths
-}
-
-func (g *graph) allShortestPathsRec(paths map[string]Path, currentID string, currentDepth int) {
-	currentPath := paths[currentID]
-	for _, edge := range g.EdgesFor(currentID) {
-		end := edge.OtherEnd(currentID)
-		if _, found := paths[end]; found {
-		} else {
-			paths[end] = currentPath.Clone()
-			paths[end].AddTail(edge)
-			g.allShortestPathsRec(paths, end, currentDepth+1)
-		}
-	}
-}
-
-func (g *graph) AllConnectionsFor(id string) []string {
-	ids := []string{}
-	for end := range g.AllShortestPaths(id) {
-		ids = append(ids, end)
-	}
-	sort.Strings(ids)
-	return ids
-}
-
-func New() Graph {
-	return &graph{}
+func (g *graph) AddEdge(edges ...Edge) {
+	g.edges = append(g.edges, edges...)
 }
