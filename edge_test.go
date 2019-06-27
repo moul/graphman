@@ -6,7 +6,7 @@ func ExampleNewEdge() {
 	va := NewVertex("aaa")
 	vb := NewVertex("bbb")
 	vc := NewVertex("ccc")
-	vc.SetAttr(NewAttr("ddd", "eee"))
+	vc.AddAttr(NewAttr("ddd", "eee"))
 
 	eab := NewEdge(va, vb)
 	eac := NewEdge(va, vc)

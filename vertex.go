@@ -10,12 +10,12 @@ type Vertex interface {
 
 	ID() string
 
-	AddEdge(edge Edge)
+	AddEdge(edges ...Edge)
 	Edges() []Edge
 	CleanEdges()
 
-	SetAttr(Attr)
-	DelAttr(key interface{})
+	AddAttr(attrs ...Attr)
+	DelAttr(keys ...interface{})
 	GetAttr(key interface{}) interface{}
 	HasAttr(key interface{}) bool
 	CleanAttrs()
@@ -44,11 +44,11 @@ func (n *vertex) CleanAttrs() {
 	n.attrs = nil
 }
 
-func (n *vertex) AddEdge(edge Edge) {
+func (n *vertex) AddEdge(edge ...Edge) {
 	if n.edges == nil {
 		n.edges = make([]Edge, 0)
 	}
-	n.edges = append(n.edges, edge)
+	n.edges = append(n.edges, edge...)
 }
 
 func (n *vertex) HasAttr(key interface{}) bool {
@@ -75,22 +75,26 @@ func (n *vertex) GetAttr(key interface{}) interface{} {
 	return nil
 }
 
-func (n *vertex) SetAttr(attr Attr) {
-	n.DelAttr(attr.Key())
+func (n *vertex) AddAttr(attrs ...Attr) {
+	for _, attr := range attrs {
+		n.DelAttr(attr.Key())
+	}
 	if n.attrs == nil {
 		n.attrs = make([]Attr, 0)
 	}
-	n.attrs = append(n.attrs, attr)
+	n.attrs = append(n.attrs, attrs...)
 }
 
-func (n *vertex) DelAttr(key interface{}) {
+func (n *vertex) DelAttr(keys ...interface{}) {
 	if n.attrs == nil {
 		return
 	}
-	for idx, attr := range n.attrs {
-		if attr.Key() == key {
-			n.attrs = append(n.attrs[:idx], n.attrs[idx+1:]...)
-			return
+	for _, key := range keys {
+		for idx, attr := range n.attrs {
+			if attr.Key() == key {
+				n.attrs = append(n.attrs[:idx], n.attrs[idx+1:]...)
+				return
+			}
 		}
 	}
 }

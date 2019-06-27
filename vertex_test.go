@@ -3,20 +3,21 @@ package graphman
 import "fmt"
 
 func ExampleNewVertex() {
-	a := NewVertex("aaa")
-	fmt.Println(a)
-	fmt.Println(a.ID())
+	va := NewVertex("aaa")
+	fmt.Println(va)
+	fmt.Println(va.ID())
 
 	fmt.Println()
 
-	b := NewVertex("bbb")
-	b.SetAttr(NewAttr("ccc", "ddd"))
-	b.SetAttr(NewAttr(42, []string{"eee", "fff"}))
-	b.SetAttr(NewAttr("ggg", "hhh"))
-	b.DelAttr("ggg")
-	b.DelAttr("iii")
-	fmt.Println(b)
-	fmt.Println(b.ID())
+	vb := NewVertex("bbb")
+	vb.AddAttr(
+		NewAttr("ccc", "ddd"),
+		NewAttr(42, []string{"eee", "fff"}),
+		NewAttr("ggg", "hhh"),
+	)
+	vb.DelAttr("ggg", "iii")
+	fmt.Println(vb)
+	fmt.Println(vb.ID())
 
 	// Output:
 	// aaa

@@ -13,7 +13,7 @@ type Graph interface {
 	AddEdge(...Edge)
 	Vertices() []Vertex
 	Edges() []Edge
-	StandaloneVertices() []Vertex
+	IsolatedVertices() []Vertex
 }
 
 type graph struct {
@@ -31,17 +31,17 @@ func NewGraph() Graph {
 func (g *graph) Vertices() []Vertex { return g.vertices }
 func (g *graph) Edges() []Edge      { return g.edges }
 
-func (g *graph) StandaloneVertices() []Vertex {
-	standaloneVertices := map[string]Vertex{}
+func (g *graph) IsolatedVertices() []Vertex {
+	isolatedVertices := map[string]Vertex{}
 	for _, vertex := range g.vertices {
-		standaloneVertices[vertex.ID()] = vertex
+		isolatedVertices[vertex.ID()] = vertex
 	}
 	for _, edge := range g.edges {
-		standaloneVertices[edge.Src().ID()] = nil
-		standaloneVertices[edge.Dst().ID()] = nil
+		isolatedVertices[edge.Src().ID()] = nil
+		isolatedVertices[edge.Dst().ID()] = nil
 	}
 	filtered := []Vertex{}
-	for _, vertex := range standaloneVertices {
+	for _, vertex := range isolatedVertices {
 		if vertex != nil {
 			filtered = append(filtered, vertex)
 		}
@@ -56,7 +56,7 @@ func (g *graph) String() string {
 	for _, edge := range g.edges {
 		elems = append(elems, edge.String())
 	}
-	for _, vertex := range g.StandaloneVertices() {
+	for _, vertex := range g.IsolatedVertices() {
 		elems = append(elems, vertex.ID())
 	}
 	return fmt.Sprintf("{%s}", strings.Join(elems, ","))
