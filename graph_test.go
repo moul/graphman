@@ -17,25 +17,100 @@ func ExampleGraph_simple() {
 	// Output: {(A,B),(B,C),(E,F),D}
 }
 
+func ExampleGraph_components() {
+	graph := New()
+	// component 1: loop
+	graph.AddEdge("A", "B")
+	graph.AddEdge("B", "C")
+	graph.AddEdge("C", "D")
+	graph.AddEdge("D", "A")
+
+	// component 2: standard
+	graph.AddEdge("L", "M")
+	graph.AddEdge("M", "N")
+	graph.AddEdge("M", "O")
+	graph.AddEdge("M", "P")
+	graph.AddEdge("N", "Q")
+	graph.AddEdge("O", "Q")
+	graph.AddEdge("P", "Q")
+	graph.AddEdge("Q", "R")
+
+	// component 3: self loop
+	graph.AddEdge("Z", "Z")
+
+	// component 4: reverse (sorted string)
+	graph.AddEdge("Y", "X")
+	graph.AddEdge("X", "W")
+	graph.AddEdge("W", "V")
+	graph.AddEdge("V", "U")
+
+	for _, couple := range [][2]string{
+		{"A", "D"}, // using the loop from component 1
+		{"B", "A"}, // same
+		{"A", "L"}, // two components
+		{"L", "R"}, // through all the component 2
+		{"Z", "Z"}, // self loop
+		{"Y", "U"}, // reverse sorted string
+	} {
+		fmt.Printf("couple %s-%s:\n", couple[0], couple[1])
+		for _, path := range graph.FindAllPaths(couple[0], couple[1]) {
+			fmt.Println("-", path)
+		}
+		path, dist := graph.FindShortestPath(couple[0], couple[1])
+		fmt.Println("shortest:", path, dist)
+		fmt.Println()
+	}
+
+	// Output:
+	// couple A-D:
+	// - (A,B,C,D)
+	// shortest: (A,B,C,D) 3
+	//
+	// couple B-A:
+	// - (B,C,D,A)
+	// shortest: (B,C,D,A) 3
+	//
+	// couple A-L:
+	// shortest: [INVALID] -1
+	//
+	// couple L-R:
+	// - (L,M,N,Q,R)
+	// - (L,M,O,Q,R)
+	// - (L,M,P,Q,R)
+	// shortest: (L,M,N,Q,R) 4
+	//
+	// couple Z-Z:
+	// - (Z,Z)
+	// shortest: () 0
+	//
+	// couple Y-U:
+	// - (Y,X,W,V,U)
+	// shortest: (Y,X,W,V,U) 4
+}
+
 func ExampleGraphFindAllPaths() {
 	graph := New()
+	graph.AddEdge("G", "H")
 	graph.AddEdge("A", "B")
 	graph.AddEdge("A", "B")
+	graph.AddEdge("F", "H")
 	graph.AddEdge("A", "C")
-	graph.AddEdge("A", "D")
 	graph.AddEdge("B", "E")
 	graph.AddEdge("B", "G")
 	graph.AddEdge("C", "F")
 	graph.AddEdge("D", "H")
+	graph.AddEdge("A", "D")
 	graph.AddEdge("E", "G")
 	graph.AddEdge("E", "H")
 	graph.AddEdge("F", "G")
-	graph.AddEdge("F", "H")
-	graph.AddEdge("G", "H")
 
 	for _, path := range graph.FindAllPaths("A", "H") {
 		fmt.Println(path)
 	}
+
+	fmt.Println()
+	path, dist := graph.FindShortestPath("A", "H")
+	fmt.Printf("shortest (distance=%d): %s\n", dist, path)
 
 	// Output:
 	// (A,B,E,G,H)
@@ -47,6 +122,8 @@ func ExampleGraphFindAllPaths() {
 	// (A,C,F,G,H)
 	// (A,C,F,H)
 	// (A,D,H)
+	//
+	// shortest (distance=2): (A,D,H)
 }
 
 func ExampleGraph_complex() {
