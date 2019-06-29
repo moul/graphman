@@ -2,6 +2,7 @@ package graphman
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"strings"
 )
@@ -22,6 +23,35 @@ func New(attrs ...Attrs) *Graph {
 		edges:    make(Edges, 0),
 		Attrs:    a,
 	}
+}
+
+func (g Graph) FindAllPaths(srcID, dstID string) Paths {
+	src := g.GetVertex(srcID)
+	if src == nil {
+		log.Printf("%q does not exist in the graph", srcID)
+		return Paths{}
+	}
+	dst := g.GetVertex(dstID)
+	if dst == nil {
+		log.Printf("%q does not exist in the graph", dstID)
+		return Paths{}
+	}
+	paths := g.findAllPathsRec(src, dst, Path{})
+	sort.Sort(paths)
+	return paths
+}
+
+func (g Graph) findAllPathsRec(current, target *Vertex, prefix Path) Paths {
+	paths := Paths{}
+	for _, edge := range current.successors {
+		newPath := append(prefix, edge)
+		if edge.dst == target {
+			paths = append(paths, &newPath)
+		} else {
+			paths = append(paths, g.findAllPathsRec(edge.dst, target, newPath)...)
+		}
+	}
+	return paths
 }
 
 func (g Graph) Edges() Edges {

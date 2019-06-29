@@ -17,6 +17,38 @@ func ExampleGraph_simple() {
 	// Output: {(A,B),(B,C),(E,F),D}
 }
 
+func ExampleGraphFindAllPaths() {
+	graph := New()
+	graph.AddEdge("A", "B")
+	graph.AddEdge("A", "B")
+	graph.AddEdge("A", "C")
+	graph.AddEdge("A", "D")
+	graph.AddEdge("B", "E")
+	graph.AddEdge("B", "G")
+	graph.AddEdge("C", "F")
+	graph.AddEdge("D", "H")
+	graph.AddEdge("E", "G")
+	graph.AddEdge("E", "H")
+	graph.AddEdge("F", "G")
+	graph.AddEdge("F", "H")
+	graph.AddEdge("G", "H")
+
+	for _, path := range graph.FindAllPaths("A", "H") {
+		fmt.Println(path)
+	}
+
+	// Output:
+	// (A,B,E,G,H)
+	// (A,B,E,G,H)
+	// (A,B,E,H)
+	// (A,B,E,H)
+	// (A,B,G,H)
+	// (A,B,G,H)
+	// (A,C,F,G,H)
+	// (A,C,F,H)
+	// (A,D,H)
+}
+
 func ExampleGraph_complex() {
 	graph := New()
 	graph.AddVertex("A", Attrs{"hello": "world"}) // create a vertex with attributes
