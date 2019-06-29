@@ -79,23 +79,14 @@ func (g *Graph) AddEdge(srcID, dstID string, attrs ...Attrs) *Edge {
 }
 
 func (g Graph) IsolatedVertices() Vertices {
-	isolatedVertices := map[string]*Vertex{}
+	isolated := Vertices{}
 	for _, vertex := range g.vertices {
-		isolatedVertices[vertex.id] = vertex
-	}
-	for _, edge := range g.edges {
-		isolatedVertices[edge.src.id] = nil
-		isolatedVertices[edge.dst.id] = nil
-	}
-	filtered := Vertices{}
-	for _, vertex := range isolatedVertices {
-		if vertex != nil {
-			filtered = append(filtered, vertex)
+		if len(vertex.Edges()) == 0 {
+			isolated = append(isolated, vertex)
 		}
 	}
-
-	sort.Sort(filtered)
-	return filtered
+	sort.Sort(isolated)
+	return isolated
 }
 
 func (g Graph) String() string {

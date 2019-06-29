@@ -25,6 +25,10 @@ func newVertex(id string, attrs ...Attrs) *Vertex {
 	}
 }
 
+func (v *Vertex) Edges() Edges {
+	return append(v.predecessors, v.successors...)
+}
+
 func (v *Vertex) ID() string { return v.id }
 
 func (v *Vertex) String() string {
