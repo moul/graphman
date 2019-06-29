@@ -27,3 +27,14 @@ func ExampleVertex_withAttrs() {
 	// A[[ccc:ddd,eee:[fff ggg],hhh:42]]
 	// A
 }
+
+func ExampleVertices() {
+	vertices := &Vertices{
+		&Vertex{ID: "A"},
+		&Vertex{ID: "B"},
+		&Vertex{ID: "C"},
+		&Vertex{ID: "D"},
+	}
+	fmt.Println(vertices)
+	// Output: {A,B,C,D}
+}

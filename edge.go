@@ -1,6 +1,9 @@
 package graphman
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Edge struct {
 	Src   *Vertex
@@ -35,3 +38,11 @@ func (e *Edge) OtherVertex(id string) *Vertex {
 }
 
 type Edges []*Edge
+
+func (e Edges) String() string {
+	items := []string{}
+	for _, edge := range e {
+		items = append(items, edge.String())
+	}
+	return fmt.Sprintf("{%s}", strings.Join(items, ","))
+}
