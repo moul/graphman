@@ -24,8 +24,15 @@ func New(attrs ...Attrs) *Graph {
 	}
 }
 
-func (g Graph) Edges() Edges       { return g.edges }
-func (g Graph) Vertices() Vertices { return g.vertices }
+func (g Graph) Edges() Edges {
+	// FIXME: sort.Sort(g.edges)
+	return g.edges
+}
+
+func (g Graph) Vertices() Vertices {
+	sort.Sort(g.vertices)
+	return g.vertices
+}
 
 func (g *Graph) AddVertex(id string, attrs ...Attrs) *Vertex {
 	var a Attrs
@@ -38,9 +45,9 @@ func (g *Graph) AddVertex(id string, attrs ...Attrs) *Vertex {
 		v.Attrs.Merge(a)
 	} else {
 		v = newVertex(id, a)
+		g.vertices = append(g.vertices, v)
 	}
 
-	g.vertices = append(g.vertices, v)
 	return v
 }
 
