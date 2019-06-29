@@ -5,9 +5,16 @@ import (
 	"strings"
 )
 
+//
+// Path
+//
+
 type Path Edges
 
 func (p Path) String() string {
+	if p == nil {
+		return "[INVALID]"
+	}
 	vertices := p.Vertices()
 	ids := []string{}
 	for _, vertex := range vertices {
@@ -30,6 +37,9 @@ func (p Path) IsValid() bool {
 }
 
 func (p Path) Vertices() Vertices {
+	if len(p) < 1 {
+		return Vertices{}
+	}
 	vertices := Vertices{p.FirstVertex()}
 	for _, edge := range p {
 		vertices = append(vertices, edge.dst)
@@ -37,10 +47,31 @@ func (p Path) Vertices() Vertices {
 	return vertices
 }
 
+func (p Path) HasVertex(id string) bool {
+	if len(p) < 1 {
+		return false
+	}
+	if p[0].src.id == id {
+		return true
+	}
+	for _, e := range p {
+		if e.dst.id == id {
+			return true
+		}
+	}
+	return false
+}
+
 func (p Path) FirstEdge() *Edge     { return p[0] }
 func (p Path) LastEdge() *Edge      { return p[len(p)-1] }
 func (p Path) FirstVertex() *Vertex { return p.FirstEdge().src }
 func (p Path) LastVertex() *Vertex  { return p.LastEdge().dst }
+
+func (p Path) Edges() Edges { return Edges(p) }
+
+//
+// Paths
+//
 
 type Paths []*Path
 

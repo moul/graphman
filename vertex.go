@@ -11,6 +11,11 @@ type Vertex struct {
 	successors   Edges
 	predecessors Edges
 	Attrs
+	dijkstra struct {
+		dist    int64
+		prev    *Edge
+		visited bool
+	}
 }
 
 func newVertex(id string, attrs ...Attrs) *Vertex {
