@@ -6,13 +6,29 @@ import (
 )
 
 type Vertex struct {
-	ID    string
-	Edges Edges
+	id           string
+	successors   Edges
+	predecessors Edges
 	Attrs
 }
 
+func newVertex(id string, attrs ...Attrs) *Vertex {
+	var a Attrs
+	if len(attrs) > 0 {
+		a = attrs[0]
+	}
+	return &Vertex{
+		id:           id,
+		Attrs:        a,
+		successors:   make(Edges, 0),
+		predecessors: make(Edges, 0),
+	}
+}
+
+func (v *Vertex) ID() string { return v.id }
+
 func (v *Vertex) String() string {
-	ret := v.ID
+	ret := v.id
 	if !v.Attrs.IsEmpty() {
 		ret += fmt.Sprintf("[%s]", v.Attrs)
 	}
@@ -24,11 +40,11 @@ type Vertices []*Vertex
 func (v Vertices) String() string {
 	ids := []string{}
 	for _, vertex := range v {
-		ids = append(ids, vertex.ID)
+		ids = append(ids, vertex.id)
 	}
 	return fmt.Sprintf("{%s}", strings.Join(ids, ","))
 }
 
 func (v Vertices) Len() int           { return len(v) }
 func (v Vertices) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
-func (v Vertices) Less(i, j int) bool { return v[i].ID < v[j].ID }
+func (v Vertices) Less(i, j int) bool { return v[i].id < v[j].id }

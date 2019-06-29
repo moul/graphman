@@ -3,16 +3,13 @@ package graphman
 import "fmt"
 
 func ExamplePath() {
-	va := &Vertex{ID: "A"}
-	vb := &Vertex{ID: "B"}
-	vc := &Vertex{ID: "C"}
-	vd := &Vertex{ID: "D"}
+	graph := New()
 
-	path := Path{
-		&Edge{Src: va, Dst: vb},
-		&Edge{Src: vb, Dst: vc},
-		&Edge{Src: vc, Dst: vd},
-	}
+	eab := graph.AddEdge("A", "B")
+	ebc := graph.AddEdge("B", "C")
+	ecd := graph.AddEdge("C", "D", Attrs{"hello": "world"})
+
+	path := Path{eab, ebc, ecd}
 	fmt.Println(path)
 
 	// Output: (A,B,C,D)

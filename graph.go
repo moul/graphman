@@ -7,8 +7,8 @@ import (
 )
 
 type Graph struct {
-	Vertices Vertices
-	Edges    Edges
+	vertices Vertices
+	edges    Edges
 	Attrs
 }
 
@@ -18,11 +18,14 @@ func New(attrs ...Attrs) *Graph {
 		a = attrs[0]
 	}
 	return &Graph{
-		Vertices: make(Vertices, 0),
-		Edges:    make(Edges, 0),
+		vertices: make(Vertices, 0),
+		edges:    make(Edges, 0),
 		Attrs:    a,
 	}
 }
+
+func (g Graph) Edges() Edges       { return g.edges }
+func (g Graph) Vertices() Vertices { return g.vertices }
 
 func (g *Graph) AddVertex(id string, attrs ...Attrs) *Vertex {
 	var a Attrs
@@ -34,17 +37,17 @@ func (g *Graph) AddVertex(id string, attrs ...Attrs) *Vertex {
 	if v != nil {
 		v.Attrs.Merge(a)
 	} else {
-		v = &Vertex{ID: id, Attrs: a}
+		v = newVertex(id, a)
 	}
 
-	g.Vertices = append(g.Vertices, v)
+	g.vertices = append(g.vertices, v)
 	return v
 }
 
 func (g *Graph) RemoveVertex(id string) bool {
-	for k, v := range g.Vertices {
-		if v.ID == id {
-			g.Vertices = append(g.Vertices[:k], g.Vertices[k+1:]...)
+	for k, v := range g.vertices {
+		if v.id == id {
+			g.vertices = append(g.vertices[:k], g.vertices[k+1:]...)
 			return true
 		}
 	}
@@ -52,8 +55,8 @@ func (g *Graph) RemoveVertex(id string) bool {
 }
 
 func (g Graph) GetVertex(id string) *Vertex {
-	for _, v := range g.Vertices {
-		if v.ID == id {
+	for _, v := range g.vertices {
+		if v.id == id {
 			return v
 		}
 	}
@@ -68,19 +71,21 @@ func (g *Graph) AddEdge(srcID, dstID string, attrs ...Attrs) *Edge {
 
 	src := g.AddVertex(srcID)
 	dst := g.AddVertex(dstID)
-	edge := &Edge{Src: src, Dst: dst, Attrs: a}
-	g.Edges = append(g.Edges, edge)
+	edge := newEdge(src, dst, a)
+	src.successors = append(src.successors, edge)
+	dst.predecessors = append(src.predecessors, edge)
+	g.edges = append(g.edges, edge)
 	return edge
 }
 
 func (g Graph) IsolatedVertices() Vertices {
 	isolatedVertices := map[string]*Vertex{}
-	for _, vertex := range g.Vertices {
-		isolatedVertices[vertex.ID] = vertex
+	for _, vertex := range g.vertices {
+		isolatedVertices[vertex.id] = vertex
 	}
-	for _, edge := range g.Edges {
-		isolatedVertices[edge.Src.ID] = nil
-		isolatedVertices[edge.Dst.ID] = nil
+	for _, edge := range g.edges {
+		isolatedVertices[edge.src.id] = nil
+		isolatedVertices[edge.dst.id] = nil
 	}
 	filtered := Vertices{}
 	for _, vertex := range isolatedVertices {
@@ -95,11 +100,11 @@ func (g Graph) IsolatedVertices() Vertices {
 
 func (g Graph) String() string {
 	elems := []string{}
-	for _, edge := range g.Edges {
+	for _, edge := range g.edges {
 		elems = append(elems, edge.String())
 	}
 	for _, vertex := range g.IsolatedVertices() {
-		elems = append(elems, vertex.ID)
+		elems = append(elems, vertex.id)
 	}
 	return fmt.Sprintf("{%s}", strings.Join(elems, ","))
 }

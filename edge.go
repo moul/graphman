@@ -6,17 +6,29 @@ import (
 )
 
 type Edge struct {
-	Src *Vertex
-	Dst *Vertex
+	src *Vertex
+	dst *Vertex
 	Attrs
 }
 
+func newEdge(src, dst *Vertex, attrs ...Attrs) *Edge {
+	var a Attrs
+	if len(attrs) > 0 {
+		a = attrs[0]
+	}
+	return &Edge{
+		src:   src,
+		dst:   dst,
+		Attrs: a,
+	}
+}
+
 func (e *Edge) Vertices() Vertices {
-	return Vertices{e.Src, e.Dst}
+	return Vertices{e.src, e.dst}
 }
 
 func (e *Edge) String() string {
-	ret := fmt.Sprintf("(%s,%s)", e.Src.ID, e.Dst.ID)
+	ret := fmt.Sprintf("(%s,%s)", e.src.id, e.dst.id)
 	if !e.Attrs.IsEmpty() {
 		ret += fmt.Sprintf("[%s]", e.Attrs)
 	}
@@ -24,15 +36,15 @@ func (e *Edge) String() string {
 }
 
 func (e *Edge) HasVertex(id string) bool {
-	return e.Src.ID == id || e.Dst.ID == id
+	return e.src.id == id || e.dst.id == id
 }
 
 func (e *Edge) OtherVertex(id string) *Vertex {
-	if e.Src.ID == id {
-		return e.Dst
+	if e.src.id == id {
+		return e.dst
 	}
-	if e.Dst.ID == id {
-		return e.Src
+	if e.dst.id == id {
+		return e.src
 	}
 	return nil
 }

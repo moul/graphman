@@ -3,18 +3,13 @@ package graphman
 import "fmt"
 
 func ExampleEdge() {
-	va := &Vertex{ID: "A"}
-	vb := &Vertex{ID: "B"}
-	vc := &Vertex{ID: "C", Attrs: Attrs{"D": "E"}}
-
-	eab := &Edge{Src: va, Dst: vb}
-	eac := &Edge{Src: va, Dst: vc}
-
-	edges := &Edges{eab, eac}
-
-	fmt.Println(eab)
-	fmt.Println(eac)
-	fmt.Println(edges)
+	graph := New()
+	graph.AddVertex("A")
+	graph.AddVertex("B")
+	graph.AddVertex("C", Attrs{"D": "E"})
+	fmt.Println(graph.AddEdge("A", "B"))
+	fmt.Println(graph.AddEdge("A", "C"))
+	fmt.Println(graph.Edges())
 
 	// Output:
 	// (A,B)
