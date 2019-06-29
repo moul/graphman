@@ -33,3 +33,17 @@ func (a Attrs) String() string {
 	return fmt.Sprintf("[%s]", strings.Join(elems, ","))
 
 }
+
+func (a Attrs) SetTitle(title string) Attrs {
+	a["title"] = title
+	return a
+}
+
+func (a Attrs) SetPert(opt, real, pess float64) Attrs {
+	a["pert"] = PertAttrs{
+		Optimistic:  opt,
+		Realistic:   real,
+		Pessimistic: pess,
+	}
+	return a
+}
