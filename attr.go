@@ -13,6 +13,12 @@ func (a Attrs) Has(key string) bool {
 	return found
 }
 
+func (a *Attrs) Merge(b Attrs) {
+	for k, v := range b {
+		(*a)[k] = v
+	}
+}
+
 func (a Attrs) IsEmpty() bool { return len(a) == 0 }
 
 func (a Attrs) String() string {

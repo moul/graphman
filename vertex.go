@@ -7,8 +7,8 @@ import (
 
 type Vertex struct {
 	ID    string
-	Attrs Attrs
 	Edges Edges
+	Attrs
 }
 
 func (v *Vertex) String() string {

@@ -6,9 +6,9 @@ import (
 )
 
 type Edge struct {
-	Src   *Vertex
-	Dst   *Vertex
-	Attrs Attrs
+	Src *Vertex
+	Dst *Vertex
+	Attrs
 }
 
 func (e *Edge) Vertices() Vertices {
