@@ -40,10 +40,18 @@ func (a Attrs) SetTitle(title string) Attrs {
 }
 
 func (a Attrs) SetPert(opt, real, pess float64) Attrs {
-	a["pert"] = PertAttrs{
+	a["pert"] = &PertAttrs{
 		Optimistic:  opt,
 		Realistic:   real,
 		Pessimistic: pess,
 	}
 	return a
+}
+
+func (a Attrs) GetPert() *PertAttrs {
+	pa, found := a["pert"]
+	if !found {
+		return nil
+	}
+	return pa.(*PertAttrs)
 }

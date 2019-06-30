@@ -26,6 +26,8 @@ func newVertex(id string, attrs ...Attrs) *Vertex {
 	var a Attrs
 	if len(attrs) > 0 {
 		a = attrs[0]
+	} else {
+		a = make(map[string]interface{})
 	}
 	return &Vertex{
 		id:           id,
