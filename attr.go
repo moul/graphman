@@ -19,11 +19,18 @@ func (a *Attrs) Merge(b Attrs) {
 	}
 }
 
+func (a *Attrs) Del(key string) {
+	delete(*a, key)
+}
+
 func (a Attrs) IsEmpty() bool { return len(a) == 0 }
 
 func (a Attrs) String() string {
+	if a == nil {
+		return "[INVALID]"
+	}
 	if len(a) == 0 {
-		return ""
+		return "[]"
 	}
 	elems := []string{}
 	for key, val := range a {
@@ -39,6 +46,13 @@ func (a Attrs) SetTitle(title string) Attrs {
 	return a
 }
 
+func (a Attrs) GetTitle() string {
+	if attr, found := a["title"]; found {
+		return attr.(string)
+	}
+	return ""
+}
+
 func (a Attrs) SetPert(opt, real, pess float64) Attrs {
 	a["pert"] = &PertAttrs{
 		Optimistic:  opt,
@@ -49,9 +63,28 @@ func (a Attrs) SetPert(opt, real, pess float64) Attrs {
 }
 
 func (a Attrs) GetPert() *PertAttrs {
-	pa, found := a["pert"]
-	if !found {
-		return nil
+	if attr, found := a["pert"]; found {
+		return attr.(*PertAttrs)
 	}
-	return pa.(*PertAttrs)
+	return nil
+}
+
+func (a Attrs) Clone() Attrs {
+	newAttrs := Attrs{}
+	for k, v := range a {
+		newAttrs[k] = v
+	}
+	return newAttrs
+}
+
+func (a Attrs) SetColor(color string) Attrs {
+	a["color"] = color
+	return a
+}
+
+func (a Attrs) GetColor() string {
+	if attr, found := a["color"]; found {
+		return attr.(string)
+	}
+	return ""
 }
