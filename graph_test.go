@@ -2,6 +2,32 @@ package graphman
 
 import "fmt"
 
+func ExampleGraphConnectedSubgraphs() {
+	graph := New()
+	// component 1
+	graph.AddEdge("A", "B")
+	graph.AddEdge("B", "C")
+	graph.AddEdge("C", "D")
+	graph.AddEdge("D", "A")
+	// component 2
+	graph.AddEdge("E", "E")
+	// component 3
+	graph.AddEdge("F", "G")
+	graph.AddEdge("G", "H")
+	graph.AddEdge("G", "I")
+	graph.AddEdge("H", "J")
+	graph.AddEdge("I", "J")
+	graph.AddEdge("J", "K")
+
+	for _, subgraph := range graph.ConnectedSubgraphs() {
+		fmt.Println(subgraph, subgraph.vertices)
+	}
+	// Output:
+	// {(A,B),(B,C),(C,D),(D,A)} {A,B,C,D}
+	// {(E,E)} {E}
+	// {(F,G),(G,H),(G,I),(H,J),(I,J),(J,K)} {F,G,H,J,K,I}
+}
+
 func ExampleGraph_simple() {
 	graph := New()
 	graph.AddVertex("A")

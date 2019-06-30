@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+//
+// Vertex
+//
+
 type Vertex struct {
 	id           string
 	successors   Edges
@@ -31,6 +35,11 @@ func newVertex(id string, attrs ...Attrs) *Vertex {
 	}
 }
 
+func (v Vertex) IsSource() bool          { return v.InDegree() == 0 }
+func (v Vertex) IsSink() bool            { return v.OutDegree() == 0 }
+func (v Vertex) InDegree() int           { return len(v.predecessors) }
+func (v Vertex) OutDegree() int          { return len(v.successors) }
+func (v Vertex) Degree() int             { return v.InDegree() + v.OutDegree() }
 func (v Vertex) PredecessorEdges() Edges { return v.predecessors }
 func (v Vertex) SuccessorEdges() Edges   { return v.successors }
 
@@ -78,6 +87,80 @@ func (v Vertex) String() string {
 	}
 	return ret
 }
+
+type VerticesWalkFunc func(current, previous *Vertex, depth int) error
+
+func (v *Vertex) WalkSuccessorVertices(fn VerticesWalkFunc) error {
+	visited := map[string]bool{}
+	return v.walkSuccessorVerticesRec(fn, nil, 0, visited)
+}
+
+func (v *Vertex) walkSuccessorVerticesRec(fn VerticesWalkFunc, previous *Vertex, depth int, visited map[string]bool) error {
+	if visited[v.id] {
+		return nil
+	}
+	visited[v.id] = true
+	if err := fn(v, previous, depth); err != nil {
+		return err
+	}
+	for _, successor := range v.successors {
+		if err := successor.dst.walkSuccessorVerticesRec(fn, v, depth+1, visited); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (v *Vertex) WalkPredecessorVertices(fn VerticesWalkFunc) error {
+	visited := map[string]bool{}
+	return v.walkPredecessorVerticesRec(fn, nil, 0, visited)
+}
+
+func (v *Vertex) walkPredecessorVerticesRec(fn VerticesWalkFunc, previous *Vertex, depth int, visited map[string]bool) error {
+	if visited[v.id] {
+		return nil
+	}
+	visited[v.id] = true
+	if err := fn(v, previous, depth); err != nil {
+		return err
+	}
+	for _, predecessor := range v.predecessors {
+		if err := predecessor.dst.walkPredecessorVerticesRec(fn, v, depth+1, visited); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (v *Vertex) WalkAdjacentVertices(fn VerticesWalkFunc) error {
+	visited := map[string]bool{}
+	return v.walkAdjacentVerticesRec(fn, nil, 0, visited)
+}
+
+func (v *Vertex) walkAdjacentVerticesRec(fn VerticesWalkFunc, previous *Vertex, depth int, visited map[string]bool) error {
+	if visited[v.id] {
+		return nil
+	}
+	visited[v.id] = true
+	if err := fn(v, previous, depth); err != nil {
+		return err
+	}
+	for _, successor := range v.successors {
+		if err := successor.dst.walkAdjacentVerticesRec(fn, v, depth+1, visited); err != nil {
+			return err
+		}
+	}
+	for _, predecessor := range v.predecessors {
+		if err := predecessor.src.walkAdjacentVerticesRec(fn, v, depth+1, visited); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+//
+// Vertices
+//
 
 type Vertices []*Vertex
 
