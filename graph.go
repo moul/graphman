@@ -29,6 +29,59 @@ func New(attrs ...Attrs) *Graph {
 	}
 }
 
+func (g Graph) SinkVertices() Vertices {
+	sinks := Vertices{}
+	for _, vertex := range g.vertices {
+		if vertex.IsSink() {
+			sinks = append(sinks, vertex)
+		}
+	}
+	return sinks
+}
+
+func (g Graph) ConnectedSubgraphs() Graphs {
+	graphs := Graphs{}
+	visited := map[string]bool{}
+	for _, vertex := range g.vertices {
+		if visited[vertex.id] {
+			continue
+		}
+		subgraph := g.ConnectedSubgraphFromVertex(vertex)
+		for _, v := range subgraph.vertices {
+			visited[v.id] = true
+		}
+		graphs = append(graphs, subgraph)
+	}
+	return graphs
+}
+
+func (g Graph) ConnectedSubgraphFromVertex(start *Vertex) *Graph {
+	subgraph := New()
+	visitedEdges := map[*Edge]bool{}
+	start.WalkAdjacentVertices(func(current, previous *Vertex, depth int) error {
+		subgraph.vertices = append(subgraph.vertices, current)
+		for _, edge := range current.Edges() {
+			if visitedEdges[edge] {
+				continue
+			}
+			visitedEdges[edge] = true
+			subgraph.edges = append(subgraph.edges, edge)
+		}
+		return nil
+	})
+	return subgraph
+}
+
+func (g Graph) SourceVertices() Vertices {
+	sources := Vertices{}
+	for _, vertex := range g.vertices {
+		if vertex.IsSource() {
+			sources = append(sources, vertex)
+		}
+	}
+	return sources
+}
+
 func (g Graph) FindAllPaths(srcID, dstID string) Paths {
 	src := g.GetVertex(srcID)
 	if src == nil {
@@ -45,13 +98,7 @@ func (g Graph) FindAllPaths(srcID, dstID string) Paths {
 	return paths
 }
 
-var i = 200
-
 func (g Graph) findAllPathsRec(current, target *Vertex, prefix Path) Paths {
-	i--
-	if i < 0 {
-		return Paths{}
-	}
 	paths := Paths{}
 	for _, edge := range current.successors {
 		if prefix.HasVertex(edge.dst.id) {
@@ -206,3 +253,9 @@ func (g *Graph) String() string {
 	}
 	return fmt.Sprintf("{%s}", strings.Join(elems, ","))
 }
+
+//
+// Graphs
+//
+
+type Graphs []*Graph
