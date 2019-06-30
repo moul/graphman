@@ -17,6 +17,8 @@ func newEdge(src, dst *Vertex, attrs ...Attrs) *Edge {
 	var a Attrs
 	if len(attrs) > 0 {
 		a = attrs[0]
+	} else {
+		a = make(map[string]interface{})
 	}
 	return &Edge{
 		src:   src,
