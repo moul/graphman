@@ -27,6 +27,9 @@ func newEdge(src, dst *Vertex, attrs ...Attrs) *Edge {
 	}
 }
 
+func (e Edge) Dst() *Vertex { return e.dst }
+func (e Edge) Src() *Vertex { return e.src }
+
 func (e *Edge) Vertices() Vertices {
 	return Vertices{e.src, e.dst}
 }

@@ -187,6 +187,8 @@ func (g *Graph) AddVertex(id string, attrs ...Attrs) *Vertex {
 	var a Attrs
 	if len(attrs) > 0 {
 		a = attrs[0]
+	} else {
+		a = make(Attrs)
 	}
 
 	v := g.GetVertex(id)
@@ -223,6 +225,8 @@ func (g *Graph) AddEdge(srcID, dstID string, attrs ...Attrs) *Edge {
 	var a Attrs
 	if len(attrs) > 0 {
 		a = attrs[0]
+	} else {
+		a = make(Attrs)
 	}
 
 	src := g.AddVertex(srcID)
