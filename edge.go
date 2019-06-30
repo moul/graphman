@@ -11,6 +11,8 @@ type Edge struct {
 	Attrs
 }
 
+type EdgeCostFN func(e *Edge) int64
+
 func newEdge(src, dst *Vertex, attrs ...Attrs) *Edge {
 	var a Attrs
 	if len(attrs) > 0 {

@@ -115,6 +115,11 @@ func (g Graph) findAllPathsRec(current, target *Vertex, prefix Path) Paths {
 }
 
 func (g Graph) FindShortestPath(srcID, dstID string) (Path, int64) {
+	costFN := func(e *Edge) int64 { return 1 }
+	return g.FindShortestPathFN(srcID, dstID, costFN)
+}
+
+func (g Graph) FindShortestPathFN(srcID, dstID string, fn EdgeCostFN) (Path, int64) {
 	src := g.GetVertex(srcID)
 	dst := g.GetVertex(dstID)
 	if src == nil || dst == nil {
@@ -147,7 +152,7 @@ func (g Graph) FindShortestPath(srcID, dstID string) (Path, int64) {
 			if n.dijkstra.visited {
 				continue
 			}
-			dist := u.dijkstra.dist + 1 // 1 could be replace by a value
+			dist := u.dijkstra.dist + fn(e)
 			if dist < n.dijkstra.dist {
 				n.dijkstra.dist = dist
 				n.dijkstra.prev = e
