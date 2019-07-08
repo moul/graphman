@@ -19,6 +19,8 @@ func main() {
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Value: "-", Usage: `path to the graph file ("-" for stdin)`},
 			&cli.BoolFlag{Name: "dot", Usage: "print 'dot' compatible output"},
+			&cli.BoolFlag{Name: "vertical", Usage: "displaying steps from top to bottom"},
+			&cli.BoolFlag{Name: "debug", Aliases: []string{"D"}, Usage: "verbose mode"},
 		},
 		Action: graph,
 	}
@@ -39,17 +41,25 @@ func graph(c *cli.Context) error {
 	}
 
 	graph := graphman.FromPertConfig(config)
-	log.Println(graph)
+	if c.Bool("debug") {
+		log.Println(graph)
+	}
 
 	// compute and highlight the shortest path
 	shortestPath, distance := graph.FindShortestPath("Start", "Finish")
-	log.Println("Shortest path:", shortestPath, "distance:", distance)
+	if c.Bool("debug") {
+		log.Println("Shortest path:", shortestPath, "distance:", distance)
+	}
 	for _, edge := range shortestPath {
 		edge.Dst().SetColor("red")
 		edge.SetColor("red")
 	}
 	graph.GetVertex("Start").SetColor("blue")
 	graph.GetVertex("Finish").SetColor("blue")
+
+	if c.Bool("vertical") {
+		graph.Attrs["rankdir"] = "TB"
+	}
 
 	s, err := viz.ToGraphviz(graph)
 	if err != nil {

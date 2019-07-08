@@ -102,3 +102,15 @@ func (a Attrs) GetColor() string {
 	}
 	return ""
 }
+
+func (a Attrs) GetComment() string {
+	if attr, found := a["comment"]; found {
+		return attr.(string)
+	}
+	return ""
+}
+
+func (a Attrs) SetComment(comment string) Attrs {
+	a["comment"] = comment
+	return a
+}

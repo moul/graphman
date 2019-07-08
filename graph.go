@@ -21,6 +21,8 @@ func New(attrs ...Attrs) *Graph {
 	var a Attrs
 	if len(attrs) > 0 {
 		a = attrs[0]
+	} else {
+		a = make(map[string]interface{})
 	}
 	return &Graph{
 		vertices: make(Vertices, 0),

@@ -86,11 +86,20 @@ func attrsGeneric(a graphman.Attrs, attrs map[string]string) {
 		attrs[string(graphviz.Label)] = title
 		ac.Del("title")
 	}
+	if comment := a.GetComment(); comment != "" {
+		attrs[string(graphviz.Comment)] = comment
+		ac.Del("comment")
+	}
 	if len(ac) > 0 {
 		attrs[string(graphviz.Comment)] = ""
 		for k, v := range ac {
-			line := fmt.Sprintf("\n%s: %v", k, v)
-			attrs[string(graphviz.Comment)] += line
+			switch k {
+			case "rankdir", "shape", "style":
+				attrs[k] = v.(string)
+			default:
+				line := fmt.Sprintf("\n%s: %v", k, v)
+				attrs[string(graphviz.Comment)] += line
+			}
 		}
 	}
 
@@ -105,6 +114,7 @@ func attrsGeneric(a graphman.Attrs, attrs map[string]string) {
 			delete(attrs, string(key))
 		}
 	}
+
 }
 
 func escape(input string) string {
