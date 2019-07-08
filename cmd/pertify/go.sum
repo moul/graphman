@@ -2,14 +2,9 @@ github.com/awalterschulze/gographviz v0.0.0-20190522210029-fa59802746ab h1:+cdNq
 github.com/awalterschulze/gographviz v0.0.0-20190522210029-fa59802746ab/go.mod h1:GEV5wmg4YquNw7v1kkyoX9etIk8yVmXj+AkDHuuETHs=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
-github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
-github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 h1:Ggy3mWN4l3PUFPfSG0YB3n5fVYggzysUmiUQ89SnX6Y=
 gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8/go.mod h1:cKXr3E0k4aosgycml1b5z33BVV6hai1Kh7uDgFOkbcs=
 gopkg.in/yaml.v3 v3.0.0-20190705120443-117fdf03f45f h1:nqBZgl3FUZD7Xe4yitNx/0mqkydzbl4Y89WSTjG6/ok=
 gopkg.in/yaml.v3 v3.0.0-20190705120443-117fdf03f45f/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
-moul.io/graphman v0.0.0-20190630224620-6ea064d17b62 h1:XdYdzzhh7M83I+cV2Vz9avWr4/HW03JjEHpSoH5DQXs=
-moul.io/graphman v0.0.0-20190630224620-6ea064d17b62/go.mod h1:R9SYks3P7x9mSW1ESiP2n5hvgN2KXo4hb2bi0wJH2cM=
-moul.io/graphman/viz v0.0.0-20190630224620-6ea064d17b62 h1:SuSJKN8JP4nB6fWfEf1kpiHzMz/p3Wcf6PGunNSN6qY=
-moul.io/graphman/viz v0.0.0-20190630224620-6ea064d17b62/go.mod h1:kdgZu9fto6GBvFTFaRcOeEDEUV+B/kvN62Gm75rjYw8=
