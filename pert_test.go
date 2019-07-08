@@ -6,15 +6,15 @@ import (
 
 func ExamplePertResult_withValue() {
 	graph := New()
-	graph.AddEdge("1", "2", Attrs{}.SetPert(3, 6, 15))
-	graph.AddEdge("1", "3", Attrs{}.SetPert(2, 5, 14))
-	graph.AddEdge("1", "4", Attrs{}.SetPert(6, 12, 30))
-	graph.AddEdge("2", "5", Attrs{}.SetPert(2, 5, 8))
-	graph.AddEdge("2", "6", Attrs{}.SetPert(5, 11, 17))
-	graph.AddEdge("3", "6", Attrs{}.SetPert(3, 6, 15))
-	graph.AddEdge("4", "7", Attrs{}.SetPert(3, 9, 27))
-	graph.AddEdge("5", "7", Attrs{}.SetPert(1, 4, 7))
-	graph.AddEdge("6", "7", Attrs{}.SetPert(4, 19, 28))
+	graph.AddEdge("1", "2", Attrs{}.SetPertEstimates(3, 6, 15))
+	graph.AddEdge("1", "3", Attrs{}.SetPertEstimates(2, 5, 14))
+	graph.AddEdge("1", "4", Attrs{}.SetPertEstimates(6, 12, 30))
+	graph.AddEdge("2", "5", Attrs{}.SetPertEstimates(2, 5, 8))
+	graph.AddEdge("2", "6", Attrs{}.SetPertEstimates(5, 11, 17))
+	graph.AddEdge("3", "6", Attrs{}.SetPertEstimates(3, 6, 15))
+	graph.AddEdge("4", "7", Attrs{}.SetPertEstimates(3, 9, 27))
+	graph.AddEdge("5", "7", Attrs{}.SetPertEstimates(1, 4, 7))
+	graph.AddEdge("6", "7", Attrs{}.SetPertEstimates(4, 19, 28))
 
 	fmt.Println("graph before computing:")
 	for _, e := range graph.Edges() {

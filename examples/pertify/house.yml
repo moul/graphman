@@ -1,0 +1,41 @@
+# Usage: pertify -f ./house.yml | dot -Tsvg > house-pert.svg
+# example adapted from https://www.anychart.com/products/anygantt/gallery/Pert_Charts/House_Construction_PERT_Chart.php
+
+actions:
+  - id: "1"
+    title: "Prepare foundation"
+    estimate: [4, 6, 10]
+  - id: "2"
+    title: "Make & position door frames"
+    estimate: [2, 4, 7]
+  - id: "3"
+    title: "Lay drains & floor base"
+    estimate: [7, 9, 12]
+  - id: "4"
+    title: "Install service & settings"
+    estimate: [2, 4, 5]
+    depends_on: ["5"]
+  - id: "5"
+    title: "Erect walls"
+    estimate: [7, 10, 15]
+    depends_on: ["1", "2"]
+  - id: "6"
+    title: "Plaster ceilings"
+    estimate: [1, 2, 4]
+    depends_on: ["4", "7"]
+  - id: "7"
+    title: "Erect roof"
+    estimate: [4, 6, 8]
+    depends_on: ["5"]
+  - id: "8"
+    title: "Install door & windows"
+    estimate: [7, 9, 11]
+    depends_on: ["7"]
+  - id: "9"
+    title: "Fit gutters & pipes"
+    estimate: [1, 2, 3]
+    depends_on: ["3", "6"]
+  - id: "10"
+    title: "Paint outside"
+    estimate: [1, 2, 3]
+    depends_on: ["8", "9"]

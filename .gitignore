@@ -1,4 +1,15 @@
+# Temporary files
+*~
+*#
+.#*
+
+# Vendors
+node_modules/
+vendor/
+
 # Binaries for programs and plugins
+dist/
+gin-bin
 *.exe
 *.exe~
 *.dll
