@@ -53,11 +53,25 @@ func (a Attrs) GetTitle() string {
 	return ""
 }
 
-func (a Attrs) SetPert(opt, real, pess float64) Attrs {
+func (a Attrs) SetPertEstimates(opt, real, pess float64) Attrs {
 	a["pert"] = &PertAttrs{
 		Optimistic:  opt,
 		Realistic:   real,
 		Pessimistic: pess,
+	}
+	return a
+}
+
+func (a Attrs) SetPertUntitledState() Attrs {
+	a["pert"] = &PertAttrs{
+		IsUntitledState: true,
+	}
+	return a
+}
+
+func (a Attrs) SetPertZeroTimeActivity() Attrs {
+	a["pert"] = &PertAttrs{
+		IsZeroTimeActivity: true,
 	}
 	return a
 }

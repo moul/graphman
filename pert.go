@@ -15,6 +15,8 @@ const (
 
 type PertAttrs struct {
 	Pessimistic, Realistic, Optimistic float64
+	IsZeroTimeActivity                 bool
+	IsUntitledState                    bool
 }
 
 func (pa PertAttrs) WeightedEstimate() float64 {
@@ -35,6 +37,9 @@ func (pa PertAttrs) AverageEstimate() float64 {
 }
 
 func (pa PertAttrs) String() string {
+	if pa.Optimistic == 0 || pa.Realistic == 0 || pa.Pessimistic == 0 {
+		return ""
+	}
 	return fmt.Sprintf(
 		"To=%s,Tm=%s,Tp=%s,Te=%s,σe=%s,Ve=%s",
 		prettyFloat(pa.Optimistic),
@@ -77,7 +82,7 @@ func ComputePert(g *Graph) PertResult {
 			if edge.Attrs == nil {
 				edge.Attrs = make(map[string]interface{})
 			}
-			edge.SetPert(1, 1, 1)
+			edge.SetPertEstimates(1, 1, 1)
 			pa = edge.GetPert()
 		}
 		if pa.Realistic == 0 {

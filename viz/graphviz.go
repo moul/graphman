@@ -54,6 +54,12 @@ func attrsFromVertex(vertex *graphman.Vertex) map[string]string {
 	attrs[string(graphviz.Shape)] = "box"
 	attrs[string(graphviz.Style)] = "rounded"
 	attrs[string(graphviz.Label)] = vertex.ID()
+	if pert := vertex.Attrs.GetPert(); pert != nil {
+		if pert.IsUntitledState {
+			attrs[string(graphviz.Label)] = " "
+			attrs[string(graphviz.Shape)] = "circle"
+		}
+	}
 	attrsGeneric(vertex.Attrs, attrs)
 	return attrs
 }
@@ -61,6 +67,11 @@ func attrsFromVertex(vertex *graphman.Vertex) map[string]string {
 func attrsFromEdge(edge *graphman.Edge) map[string]string {
 	attrs := map[string]string{}
 	attrs[string(graphviz.Label)] = ""
+	if pert := edge.Attrs.GetPert(); pert != nil {
+		if pert.IsZeroTimeActivity {
+			attrs[string(graphviz.Style)] = "dashed"
+		}
+	}
 	attrsGeneric(edge.Attrs, attrs)
 	return attrs
 }
@@ -76,15 +87,23 @@ func attrsGeneric(a graphman.Attrs, attrs map[string]string) {
 		ac.Del("title")
 	}
 	if len(ac) > 0 {
+		attrs[string(graphviz.Comment)] = ""
 		for k, v := range ac {
 			line := fmt.Sprintf("\n%s: %v", k, v)
-			attrs[string(graphviz.Label)] += line
+			attrs[string(graphviz.Comment)] += line
 		}
 	}
-	if label := attrs[string(graphviz.Label)]; label != "" {
-		attrs[string(graphviz.Label)] = escape(label)
-	} else {
-		delete(attrs, string(graphviz.Label))
+
+	// sanitize
+	for _, key := range []graphviz.Attr{
+		graphviz.Label,
+		graphviz.Comment,
+	} {
+		if val := attrs[string(key)]; val != "" {
+			attrs[string(key)] = escape(val)
+		} else {
+			delete(attrs, string(key))
+		}
 	}
 }
 
