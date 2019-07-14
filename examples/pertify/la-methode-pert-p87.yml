@@ -1,5 +1,4 @@
-# Usage: pertify -f ./house.yml | dot -Tsvg > house-pert.svg
-# example adapted from https://www.anychart.com/products/anygantt/gallery/Pert_Charts/House_Construction_PERT_Chart.php
+# Usage: pertify -f ./la-methode-pert-p87.yml | dot -Tsvg > graph.svg
 
 actions:
   - id: "a"
@@ -17,3 +16,7 @@ actions:
   - id: "f"
     estimate: [15, 15, 15]
     depends_on: ["c"]
+
+states:
+  - id: "Finish"
+    ts: 20 # scheduled completion time
