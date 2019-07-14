@@ -1,0 +1,64 @@
+# Usage: pertify -f ./la-methode-pert-p87.yml | dot -Tsvg > graph.svg
+
+actions:
+  - id: "a"
+    estimate: [7]
+  - id: "b"
+    estimate: [8]
+  - id: "c"
+    estimate: [9]
+  - id: "d"
+    estimate: [10]
+    depends_on: ["a", "e"]
+  - id: "e"
+    estimate: [2]
+    depends_on: ["b", "f"]
+  - id: "f"
+    estimate: [6]
+    depends_on: ["c"]
+  - id: "g"
+    estimate: [14]
+    depends_on: ["b", "f"]
+  - id: "h"
+    estimate: [7]
+    depends_on: ["b", "f"]
+  - id: "i"
+    estimate: [6]
+    depends_on: ["b", "f"]
+  - id: "j"
+    estimate: [5]
+    depends_on: ["c"]
+  - id: "k"
+    estimate: [2]
+    depends_on: ["c"]
+  - id: "l"
+    estimate: [2]
+    depends_on: ["d", "g"]
+  - id: "m"
+    estimate: [18]
+    depends_on: ["l", "h"]
+  - id: "n"
+    estimate: [9]
+    depends_on: ["i", "j"]
+  - id: "o"
+    estimate: [16]
+    depends_on: ["k"]
+  - id: "p"
+    estimate: [21]
+    depends_on: ["k"]
+  - id: "q"
+    estimate: [9]
+    depends_on: ["m", "r"]
+  - id: "r"
+    estimate: [12]
+    depends_on: ["n", "o"]
+  - id: "s"
+    estimate: [14]
+    depends_on: ["p"]
+  - id: "t"
+    estimate: [6]
+    depends_on: ["s"]
+
+states:
+  - id: "Finish"
+    ts: 54 # scheduled completion time
