@@ -1,0 +1,22 @@
+# Usage: pertify -f ./la-methode-pert-p87.yml | dot -Tsvg > graph.svg
+
+actions:
+  - id: "a"
+    estimate: [7, 7, 7]
+  - id: "b"
+    estimate: [9, 9, 9]
+  - id: "c"
+    estimate: [5, 5, 5]
+  - id: "d"
+    estimate: [10, 10, 10]
+    depends_on: ["a"]
+  - id: "e"
+    estimate: [1, 1, 1]
+    depends_on: ["b"]
+  - id: "f"
+    estimate: [15, 15, 15]
+    depends_on: ["c"]
+
+states:
+  - id: "Finish"
+    ts: 20 # scheduled completion time

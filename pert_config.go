@@ -37,6 +37,8 @@ func FromPertConfig(config PertConfig) *Graph {
 		switch len(action.Estimate) {
 		case 0:
 			break
+		case 1:
+			attrs.SetPertEstimates(action.Estimate[0], action.Estimate[0], action.Estimate[0])
 		case 3:
 			attrs.SetPertEstimates(action.Estimate[0], action.Estimate[1], action.Estimate[2])
 		default:

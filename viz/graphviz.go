@@ -7,7 +7,14 @@ import (
 	"moul.io/graphman"
 )
 
-func ToGraphviz(g *graphman.Graph) (string, error) {
+type Opts struct {
+	CommentsInLabel bool
+}
+
+func ToGraphviz(g *graphman.Graph, opts *Opts) (string, error) {
+	if opts == nil {
+		opts = &Opts{}
+	}
 	gv := graphviz.NewGraph()
 	if err := gv.SetName("G"); err != nil {
 		return "", err
@@ -15,7 +22,7 @@ func ToGraphviz(g *graphman.Graph) (string, error) {
 	if err := gv.SetDir(true); err != nil {
 		return "", err
 	}
-	for k, v := range attrsFromGraph(g) {
+	for k, v := range attrsFromGraph(g, opts) {
 		if err := gv.AddAttr("G", k, v); err != nil {
 			return "", err
 		}
@@ -24,7 +31,7 @@ func ToGraphviz(g *graphman.Graph) (string, error) {
 		if err := gv.AddNode(
 			"G",
 			vertex.ID(),
-			attrsFromVertex(vertex),
+			attrsFromVertex(vertex, opts),
 		); err != nil {
 			return "", err
 		}
@@ -34,7 +41,7 @@ func ToGraphviz(g *graphman.Graph) (string, error) {
 			edge.Src().ID(),
 			edge.Dst().ID(),
 			true,
-			attrsFromEdge(edge),
+			attrsFromEdge(edge, opts),
 		); err != nil {
 			return "", err
 		}
@@ -42,14 +49,14 @@ func ToGraphviz(g *graphman.Graph) (string, error) {
 	return gv.String(), nil
 }
 
-func attrsFromGraph(graph *graphman.Graph) map[string]string {
+func attrsFromGraph(graph *graphman.Graph, opts *Opts) map[string]string {
 	attrs := map[string]string{}
 	attrs[string(graphviz.RankDir)] = "LR"
-	attrsGeneric(graph.Attrs, attrs)
+	attrsGeneric(graph.Attrs, attrs, opts)
 	return attrs
 }
 
-func attrsFromVertex(vertex *graphman.Vertex) map[string]string {
+func attrsFromVertex(vertex *graphman.Vertex, opts *Opts) map[string]string {
 	attrs := map[string]string{}
 	attrs[string(graphviz.Shape)] = "box"
 	attrs[string(graphviz.Style)] = "rounded"
@@ -60,11 +67,11 @@ func attrsFromVertex(vertex *graphman.Vertex) map[string]string {
 			attrs[string(graphviz.Shape)] = "circle"
 		}
 	}
-	attrsGeneric(vertex.Attrs, attrs)
+	attrsGeneric(vertex.Attrs, attrs, opts)
 	return attrs
 }
 
-func attrsFromEdge(edge *graphman.Edge) map[string]string {
+func attrsFromEdge(edge *graphman.Edge, opts *Opts) map[string]string {
 	attrs := map[string]string{}
 	attrs[string(graphviz.Label)] = ""
 	if pert := edge.Attrs.GetPert(); pert != nil {
@@ -72,11 +79,11 @@ func attrsFromEdge(edge *graphman.Edge) map[string]string {
 			attrs[string(graphviz.Style)] = "dashed"
 		}
 	}
-	attrsGeneric(edge.Attrs, attrs)
+	attrsGeneric(edge.Attrs, attrs, opts)
 	return attrs
 }
 
-func attrsGeneric(a graphman.Attrs, attrs map[string]string) {
+func attrsGeneric(a graphman.Attrs, attrs map[string]string, opts *Opts) {
 	ac := a.Clone()
 	if color := a.GetColor(); color != "" {
 		attrs[string(graphviz.Color)] = color
@@ -101,6 +108,9 @@ func attrsGeneric(a graphman.Attrs, attrs map[string]string) {
 				attrs[string(graphviz.Comment)] += line
 			}
 		}
+	}
+	if opts.CommentsInLabel {
+		attrs[string(graphviz.Label)] += attrs[string(graphviz.Comment)]
 	}
 
 	// sanitize

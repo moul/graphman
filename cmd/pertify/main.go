@@ -20,6 +20,7 @@ func main() {
 			&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Value: "-", Usage: `path to the graph file ("-" for stdin)`},
 			&cli.BoolFlag{Name: "dot", Usage: "print 'dot' compatible output"},
 			&cli.BoolFlag{Name: "vertical", Usage: "displaying steps from top to bottom"},
+			&cli.BoolFlag{Name: "with-details", Usage: "Show pert numbers"},
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"D"}, Usage: "verbose mode"},
 		},
 		Action: graph,
@@ -61,7 +62,9 @@ func graph(c *cli.Context) error {
 		graph.Attrs["rankdir"] = "TB"
 	}
 
-	s, err := viz.ToGraphviz(graph)
+	s, err := viz.ToGraphviz(graph, &viz.Opts{
+		CommentsInLabel: c.Bool("with-details"),
+	})
 	if err != nil {
 		return err
 	}
