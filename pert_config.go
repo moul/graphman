@@ -12,8 +12,18 @@ type PertAction struct {
 	DependsOn []string  `yaml:"depends_on"`
 }
 
+type PertState struct {
+	ID        string   `yaml:"id"`
+	Title     string   `yaml:"title"`
+	DependsOn []string `yaml:"depends_on"`
+}
+
 type PertConfig struct {
 	Actions []PertAction `yaml:"actions"`
+	States  []PertState  `yaml:"states"`
+	Opts    struct {
+		NoSimplify bool `yaml:"simplify"`
+	} `yaml:"opts"`
 }
 
 const (
@@ -26,6 +36,21 @@ func FromPertConfig(config PertConfig) *Graph {
 
 	graph.AddVertex(pertStartVertex)
 	graph.AddVertex(pertFinishVertex)
+
+	for _, state := range config.States {
+		attrs := Attrs{}
+		if state.Title != "" {
+			attrs.SetTitle(state.Title)
+		}
+		graph.AddVertex(state.ID, attrs)
+		for _, dependency := range state.DependsOn {
+			graph.AddEdge(
+				pertPostID(dependency),
+				state.ID,
+				Attrs{}.SetPertZeroTimeActivity(),
+			)
+		}
+	}
 
 	for _, action := range config.Actions {
 		attrs := Attrs{}
@@ -46,27 +71,30 @@ func FromPertConfig(config PertConfig) *Graph {
 		}
 
 		// relationships
-		postCurrent := fmt.Sprintf("post_%s", action.ID)
 		switch len(action.DependsOn) {
 		case 0: // no dependency, linking with Start
-			graph.AddEdge(pertStartVertex, postCurrent, attrs)
+			graph.AddEdge(
+				pertStartVertex,
+				pertPostID(action.ID),
+				attrs,
+			)
 		case 1: // only one dependency
 			dependency := action.DependsOn[0]
 			graph.AddEdge(
-				fmt.Sprintf("post_%s", dependency),
-				postCurrent,
+				pertPostID(dependency),
+				pertPreID(action.ID),
 				attrs,
 			)
 		default:
 			graph.AddEdge(
-				fmt.Sprintf("pre_%s", action.ID),
-				postCurrent,
+				pertPreID(action.ID),
+				pertPostID(action.ID),
 				attrs,
 			)
 			for _, dependency := range action.DependsOn {
 				graph.AddEdge(
-					fmt.Sprintf("post_%s", dependency),
-					fmt.Sprintf("pre_%s", action.ID),
+					pertPostID(dependency),
+					pertPreID(action.ID),
 					Attrs{}.SetPertZeroTimeActivity(),
 				)
 			}
@@ -75,22 +103,19 @@ func FromPertConfig(config PertConfig) *Graph {
 
 	// link ending vertices with finish
 	for _, vertex := range graph.SinkVertices() {
-		if vertex.ID() == pertFinishVertex {
+		if vertex.id == pertFinishVertex {
 			continue
 		}
 		graph.AddEdge(
-			vertex.ID(),
+			vertex.id,
 			pertFinishVertex,
 			Attrs{}.SetPertZeroTimeActivity(),
 		)
 	}
 
-	// optimize
-	// FIXME: TODO
-
 	// nice names
 	for _, vertex := range graph.Vertices() {
-		if vertex.ID() == pertStartVertex || vertex.ID() == pertFinishVertex {
+		if vertex.id == pertStartVertex || vertex.id == pertFinishVertex {
 			continue
 		}
 		if vertex.Attrs.GetTitle() == "" {
@@ -98,5 +123,53 @@ func FromPertConfig(config PertConfig) *Graph {
 		}
 	}
 
+	for _, vertex := range graph.Vertices() {
+		if vertex.Attrs.GetTitle() == "" {
+			vertex.Attrs.SetTitle(vertex.id)
+		}
+	}
+	if !config.Opts.NoSimplify { // simplify the graph
+		verticesToDelete := map[string]bool{} // creating a map so we can iterate over vertices while deleting some entries
+		for _, vertex := range graph.Vertices() {
+			if pertIsUntitledState(vertex) || true {
+				if vertex.OutDegree() == 1 { // remove dummy states with only one dummy successor
+					successor := vertex.SuccessorEdges()[0]
+					if pertIsZeroTimeActivity(successor) {
+						for _, predecessor := range vertex.PredecessorEdges() {
+							predecessor.dst = successor.dst
+						}
+						graph.RemoveEdge(vertex.id, successor.dst.id)
+						verticesToDelete[vertex.id] = true
+					}
+				}
+			}
+		}
+		for id := range verticesToDelete {
+			graph.RemoveVertex(id)
+		}
+	}
+
 	return graph
+}
+
+func pertPreID(id string) string  { return fmt.Sprintf("pre_%s", id) }
+func pertPostID(id string) string { return fmt.Sprintf("post_%s", id) }
+
+func pertIsZeroTimeActivity(edge *Edge) bool {
+	pert := edge.GetPert()
+	return pert != nil && pert.IsZeroTimeActivity
+}
+
+func pertIsUntitledState(vertex *Vertex) bool {
+	pert := vertex.GetPert()
+	return pert != nil && pert.IsUntitledState
+}
+
+func isMarkedAsDeleted(attrs Attrs) bool {
+	val, found := attrs["__deleted"].(bool)
+	return found && val
+}
+
+func markAsDeleted(attrs Attrs) {
+	attrs["__deleted"] = true
 }

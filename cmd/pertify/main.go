@@ -21,6 +21,7 @@ func main() {
 			&cli.BoolFlag{Name: "dot", Usage: "print 'dot' compatible output"},
 			&cli.BoolFlag{Name: "vertical", Usage: "displaying steps from top to bottom"},
 			&cli.BoolFlag{Name: "with-details", Usage: "Show pert numbers"},
+			&cli.BoolFlag{Name: "no-simplify", Usage: "Don't simplify the graph"},
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"D"}, Usage: "verbose mode"},
 		},
 		Action: graph,
@@ -41,6 +42,9 @@ func graph(c *cli.Context) error {
 		return errors.Wrap(err, "failed to parse yaml file")
 	}
 
+	if c.Bool("no-simplify") {
+		config.Opts.NoSimplify = true
+	}
 	graph := graphman.FromPertConfig(config)
 	if c.Bool("debug") {
 		log.Println(graph)

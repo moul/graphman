@@ -23,7 +23,7 @@ func ExampleGraphConnectedSubgraphs() {
 		fmt.Println(subgraph, subgraph.vertices)
 	}
 	// Output:
-	// {(A,B),(B,C),(C,D),(D,A)} {A,B,C,D}
+	// {(D,A),(A,B),(B,C),(C,D)} {A,B,C,D}
 	// {(E,E)} {E}
 	// {(F,G),(G,H),(G,I),(H,J),(I,J),(J,K)} {F,G,H,J,K,I}
 }

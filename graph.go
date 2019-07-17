@@ -214,6 +214,16 @@ func (g *Graph) RemoveVertex(id string) bool {
 	return false
 }
 
+func (g *Graph) RemoveEdge(src, dst string) bool {
+	for k, v := range g.edges {
+		if v.src.id == src && v.dst.id == dst {
+			g.edges = append(g.edges[:k], g.edges[k+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
 func (g Graph) GetVertex(id string) *Vertex {
 	for _, v := range g.vertices {
 		if v.id == id {
@@ -235,7 +245,7 @@ func (g *Graph) AddEdge(srcID, dstID string, attrs ...Attrs) *Edge {
 	dst := g.AddVertex(dstID)
 	edge := newEdge(src, dst, a)
 	src.successors = append(src.successors, edge)
-	dst.predecessors = append(src.predecessors, edge)
+	dst.predecessors = append(dst.predecessors, edge)
 	g.edges = append(g.edges, edge)
 	return edge
 }
