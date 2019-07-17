@@ -53,7 +53,7 @@ func main() {
 	path.FirstVertex().SetColor("blue")
 	path.LastVertex().SetColor("blue")
 
-	s, err := viz.ToGraphviz(graph)
+	s, err := viz.ToGraphviz(graph, nil)
 	if err != nil {
 		panic(err)
 	}
