@@ -9,4 +9,4 @@ jobs:
     steps:
       - checkout
       - run: go mod download
-      - run: go test -v ./...
+      - run: make test
