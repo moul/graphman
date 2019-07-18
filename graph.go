@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const invalidPlaceholder = "[INVALID]"
+
 type Graph struct {
 	vertices Vertices
 	edges    Edges
@@ -60,7 +62,7 @@ func (g Graph) ConnectedSubgraphs() Graphs {
 func (g Graph) ConnectedSubgraphFromVertex(start *Vertex) *Graph {
 	subgraph := New()
 	visitedEdges := map[*Edge]bool{}
-	start.WalkAdjacentVertices(func(current, previous *Vertex, depth int) error {
+	if err := start.WalkAdjacentVertices(func(current, previous *Vertex, depth int) error {
 		subgraph.vertices = append(subgraph.vertices, current)
 		for _, edge := range current.Edges() {
 			if visitedEdges[edge] {
@@ -70,7 +72,9 @@ func (g Graph) ConnectedSubgraphFromVertex(start *Vertex) *Graph {
 			subgraph.edges = append(subgraph.edges, edge)
 		}
 		return nil
-	})
+	}); err != nil {
+		log.Printf("error while walking vertices: %v", err)
+	}
 	return subgraph
 }
 
@@ -263,7 +267,7 @@ func (g Graph) IsolatedVertices() Vertices {
 
 func (g *Graph) String() string {
 	if g == nil {
-		return "[INVALID]"
+		return invalidPlaceholder
 	}
 	elems := []string{}
 	for _, edge := range g.edges {

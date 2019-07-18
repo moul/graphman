@@ -6,3 +6,7 @@ test:
 .PHONY: install
 install:
 	cd cmd/pertify; go install
+
+.PHONY: lint
+lint:
+	golangci-lint run --verbose ./...

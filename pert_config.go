@@ -164,12 +164,3 @@ func pertIsUntitledState(vertex *Vertex) bool {
 	pert := vertex.GetPert()
 	return pert != nil && pert.IsUntitledState
 }
-
-func isMarkedAsDeleted(attrs Attrs) bool {
-	val, found := attrs["__deleted"].(bool)
-	return found && val
-}
-
-func markAsDeleted(attrs Attrs) {
-	attrs["__deleted"] = true
-}
