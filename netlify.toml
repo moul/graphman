@@ -1,0 +1,13 @@
+[build]
+  command = "make lambda-build"
+  functions = "./lambda-build"
+  publish = "web"
+
+[[redirects]]
+  from = "/"
+  to = "https://github.com/moul/graphman"
+
+[[redirects]]
+  from = "/api/pertify"
+  to = "/.netlify/functions/pertify"
+  status = 200
