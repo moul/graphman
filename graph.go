@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const invalidPlaceholder = "[INVALID]"
+
 type Graph struct {
 	vertices Vertices
 	edges    Edges
@@ -60,7 +62,7 @@ func (g Graph) ConnectedSubgraphs() Graphs {
 func (g Graph) ConnectedSubgraphFromVertex(start *Vertex) *Graph {
 	subgraph := New()
 	visitedEdges := map[*Edge]bool{}
-	start.WalkAdjacentVertices(func(current, previous *Vertex, depth int) error {
+	if err := start.WalkAdjacentVertices(func(current, previous *Vertex, depth int) error {
 		subgraph.vertices = append(subgraph.vertices, current)
 		for _, edge := range current.Edges() {
 			if visitedEdges[edge] {
@@ -70,7 +72,9 @@ func (g Graph) ConnectedSubgraphFromVertex(start *Vertex) *Graph {
 			subgraph.edges = append(subgraph.edges, edge)
 		}
 		return nil
-	})
+	}); err != nil {
+		log.Printf("error while walking vertices: %v", err)
+	}
 	return subgraph
 }
 
@@ -214,6 +218,16 @@ func (g *Graph) RemoveVertex(id string) bool {
 	return false
 }
 
+func (g *Graph) RemoveEdge(src, dst string) bool {
+	for k, v := range g.edges {
+		if v.src.id == src && v.dst.id == dst {
+			g.edges = append(g.edges[:k], g.edges[k+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
 func (g Graph) GetVertex(id string) *Vertex {
 	for _, v := range g.vertices {
 		if v.id == id {
@@ -235,7 +249,7 @@ func (g *Graph) AddEdge(srcID, dstID string, attrs ...Attrs) *Edge {
 	dst := g.AddVertex(dstID)
 	edge := newEdge(src, dst, a)
 	src.successors = append(src.successors, edge)
-	dst.predecessors = append(src.predecessors, edge)
+	dst.predecessors = append(dst.predecessors, edge)
 	g.edges = append(g.edges, edge)
 	return edge
 }
@@ -253,7 +267,7 @@ func (g Graph) IsolatedVertices() Vertices {
 
 func (g *Graph) String() string {
 	if g == nil {
-		return "[INVALID]"
+		return invalidPlaceholder
 	}
 	elems := []string{}
 	for _, edge := range g.edges {

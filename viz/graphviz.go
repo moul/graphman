@@ -30,7 +30,7 @@ func ToGraphviz(g *graphman.Graph, opts *Opts) (string, error) {
 	for _, vertex := range g.Vertices() {
 		if err := gv.AddNode(
 			"G",
-			vertex.ID(),
+			escape(vertex.ID()),
 			attrsFromVertex(vertex, opts),
 		); err != nil {
 			return "", err
@@ -38,8 +38,8 @@ func ToGraphviz(g *graphman.Graph, opts *Opts) (string, error) {
 	}
 	for _, edge := range g.Edges() {
 		if err := gv.AddEdge(
-			edge.Src().ID(),
-			edge.Dst().ID(),
+			escape(edge.Src().ID()),
+			escape(edge.Dst().ID()),
 			true,
 			attrsFromEdge(edge, opts),
 		); err != nil {
@@ -65,6 +65,7 @@ func attrsFromVertex(vertex *graphman.Vertex, opts *Opts) map[string]string {
 		if pert.IsUntitledState {
 			attrs[string(graphviz.Label)] = " "
 			attrs[string(graphviz.Shape)] = "circle"
+			// attrs[string(graphviz.Style)] = "dashed"
 		}
 	}
 	attrsGeneric(vertex.Attrs, attrs, opts)

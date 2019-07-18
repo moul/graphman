@@ -66,19 +66,19 @@ func ExampleVertex_helpers() {
 	// bob
 	//   isolated:              false
 	//   neighbors:             {bob,eve,sam}
-	//   predecessor vertices:  {sam}
-	//   predecessor edges:     {(sam,bob)}
+	//   predecessor vertices:  {bob,sam}
+	//   predecessor edges:     {(bob,bob),(sam,bob)}
 	//   successor vertices:    {bob,eve}
 	//   successor edges:       {(bob,eve),(bob,bob)}
-	//   edges:                 {(sam,bob),(bob,eve),(bob,bob)}
+	//   edges:                 {(bob,bob),(sam,bob),(bob,eve),(bob,bob)}
 	// eve
 	//   isolated:              false
-	//   neighbors:             {bob,eve,joy}
-	//   predecessor vertices:  {bob,eve,joy}
-	//   predecessor edges:     {(bob,eve),(eve,joy),(joy,eve)}
+	//   neighbors:             {bob,joy}
+	//   predecessor vertices:  {bob,joy}
+	//   predecessor edges:     {(bob,eve),(joy,eve)}
 	//   successor vertices:    {joy}
 	//   successor edges:       {(eve,joy)}
-	//   edges:                 {(bob,eve),(eve,joy),(joy,eve),(eve,joy)}
+	//   edges:                 {(bob,eve),(joy,eve),(eve,joy)}
 	// han
 	//   isolated:              true
 	//   neighbors:             {}
@@ -89,12 +89,12 @@ func ExampleVertex_helpers() {
 	//   edges:                 {}
 	// joy
 	//   isolated:              false
-	//   neighbors:             {bob,eve}
-	//   predecessor vertices:  {bob,eve}
-	//   predecessor edges:     {(bob,eve),(eve,joy)}
+	//   neighbors:             {eve}
+	//   predecessor vertices:  {eve}
+	//   predecessor edges:     {(eve,joy)}
 	//   successor vertices:    {eve}
 	//   successor edges:       {(joy,eve)}
-	//   edges:                 {(bob,eve),(eve,joy),(joy,eve)}
+	//   edges:                 {(eve,joy),(joy,eve)}
 	// sam
 	//   isolated:              false
 	//   neighbors:             {bob}

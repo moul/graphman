@@ -27,7 +27,7 @@ func (a Attrs) IsEmpty() bool { return len(a) == 0 }
 
 func (a Attrs) String() string {
 	if a == nil {
-		return "[INVALID]"
+		return invalidPlaceholder
 	}
 	if len(a) == 0 {
 		return "[]"

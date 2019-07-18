@@ -2,7 +2,7 @@ package graphman
 
 import "fmt"
 
-func ExampleGraphConnectedSubgraphs() {
+func ExampleGraph_ConnectedSubgraphs() {
 	graph := New()
 	// component 1
 	graph.AddEdge("A", "B")
@@ -23,7 +23,7 @@ func ExampleGraphConnectedSubgraphs() {
 		fmt.Println(subgraph, subgraph.vertices)
 	}
 	// Output:
-	// {(A,B),(B,C),(C,D),(D,A)} {A,B,C,D}
+	// {(D,A),(A,B),(B,C),(C,D)} {A,B,C,D}
 	// {(E,E)} {E}
 	// {(F,G),(G,H),(G,I),(H,J),(I,J),(J,K)} {F,G,H,J,K,I}
 }
@@ -114,7 +114,7 @@ func ExampleGraph_components() {
 	// shortest: (Y,X,W,V,U) 4
 }
 
-func ExampleGraphFindAllPaths() {
+func ExampleGraph_FindAllPaths() {
 	graph := New()
 	graph.AddEdge("G", "H")
 	graph.AddEdge("A", "B")

@@ -13,7 +13,7 @@ type Path Edges
 
 func (p Path) String() string {
 	if p == nil {
-		return "[INVALID]"
+		return invalidPlaceholder
 	}
 	vertices := p.Vertices()
 	ids := []string{}
@@ -22,7 +22,7 @@ func (p Path) String() string {
 	}
 	ret := fmt.Sprintf("(%s)", strings.Join(ids, ","))
 	if !p.IsValid() {
-		ret += "[INVALID]"
+		ret += invalidPlaceholder
 	}
 	return ret
 }
