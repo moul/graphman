@@ -40,7 +40,7 @@ func (g Graph) SinkVertices() Vertices {
 			sinks = append(sinks, vertex)
 		}
 	}
-	return sinks
+	return sinks.filtered()
 }
 
 func (g Graph) ConnectedSubgraphs() Graphs {
@@ -81,7 +81,7 @@ func (g Graph) ConnectedSubgraphFromVertex(start *Vertex) *Graph {
 func (g Graph) SourceVertices() Vertices {
 	sources := Vertices{}
 	for _, vertex := range g.vertices {
-		if vertex.IsSource() {
+		if !vertex.deleted && vertex.IsSource() {
 			sources = append(sources, vertex)
 		}
 	}
@@ -186,7 +186,32 @@ func (g Graph) Edges() Edges {
 
 func (g Graph) Vertices() Vertices {
 	sort.Sort(g.vertices)
-	return g.vertices
+	return g.vertices.filtered()
+}
+
+func (g *Graph) gc() uint {
+	removed := uint(0)
+	verticesToDelete := Vertices{}
+	for _, vertex := range g.vertices {
+		if vertex.deleted {
+			verticesToDelete = append(verticesToDelete, vertex)
+		}
+	}
+	edgesToDelete := Edges{}
+	for _, edge := range g.edges {
+		if edge.deleted {
+			edgesToDelete = append(edgesToDelete, edge)
+		}
+	}
+	for _, edge := range edgesToDelete {
+		removed++
+		g.RemoveEdge(edge.src.id, edge.dst.id)
+	}
+	for _, vertex := range verticesToDelete {
+		removed++
+		g.RemoveVertex(vertex.id)
+	}
+	return removed
 }
 
 func (g *Graph) AddVertex(id string, attrs ...Attrs) *Vertex {
@@ -211,6 +236,7 @@ func (g *Graph) AddVertex(id string, attrs ...Attrs) *Vertex {
 func (g *Graph) RemoveVertex(id string) bool {
 	for k, v := range g.vertices {
 		if v.id == id {
+			v.deleted = true
 			g.vertices = append(g.vertices[:k], g.vertices[k+1:]...)
 			return true
 		}
@@ -219,8 +245,9 @@ func (g *Graph) RemoveVertex(id string) bool {
 }
 
 func (g *Graph) RemoveEdge(src, dst string) bool {
-	for k, v := range g.edges {
-		if v.src.id == src && v.dst.id == dst {
+	for k, e := range g.edges {
+		if e.src.id == src && e.dst.id == dst {
+			e.deleted = true
 			g.edges = append(g.edges[:k], g.edges[k+1:]...)
 			return true
 		}

@@ -3,59 +3,79 @@
 actions:
   - id: "a"
     estimate: [7]
+    title: "a"
   - id: "b"
+    title: "b"
     estimate: [8]
   - id: "c"
+    title: "c"
     estimate: [9]
   - id: "d"
+    title: "d"
     estimate: [10]
     depends_on: ["a", "e"]
   - id: "e"
+    title: "e"
     estimate: [2]
     depends_on: ["b", "f"]
   - id: "f"
+    title: "f"
     estimate: [6]
     depends_on: ["c"]
   - id: "g"
+    title: "g"
     estimate: [14]
     depends_on: ["b", "f"]
   - id: "h"
+    title: "h"
     estimate: [7]
     depends_on: ["b", "f"]
   - id: "i"
+    title: "i"
     estimate: [6]
     depends_on: ["b", "f"]
   - id: "j"
+    title: "j"
     estimate: [5]
     depends_on: ["c"]
   - id: "k"
+    title: "k"
     estimate: [2]
     depends_on: ["c"]
   - id: "l"
+    title: "l"
     estimate: [2]
     depends_on: ["d", "g"]
   - id: "m"
+    title: "m"
     estimate: [18]
     depends_on: ["l", "h"]
   - id: "n"
+    title: "n"
     estimate: [9]
     depends_on: ["i", "j"]
   - id: "o"
+    title: "o"
     estimate: [16]
     depends_on: ["k"]
   - id: "p"
+    title: "p"
     estimate: [21]
     depends_on: ["k"]
   - id: "q"
+    title: "q"
     estimate: [9]
     depends_on: ["m", "r"]
   - id: "r"
+    title: "r"
     estimate: [12]
     depends_on: ["n", "o"]
   - id: "s"
+    title: "s"
     estimate: [14]
     depends_on: ["p"]
   - id: "t"
+    title: "t"
     estimate: [6]
     depends_on: ["s"]
 

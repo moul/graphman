@@ -3,6 +3,7 @@ package graphman
 import (
 	"fmt"
 	"log"
+	"strings"
 )
 
 type PertAction struct {
@@ -45,7 +46,7 @@ func FromPertConfig(config PertConfig) *Graph {
 		graph.AddVertex(state.ID, attrs)
 		for _, dependency := range state.DependsOn {
 			graph.AddEdge(
-				pertPostID(dependency),
+				graph.pertGetDependencyEnd(dependency),
 				state.ID,
 				Attrs{}.SetPertZeroTimeActivity(),
 			)
@@ -80,9 +81,10 @@ func FromPertConfig(config PertConfig) *Graph {
 			)
 		case 1: // only one dependency
 			dependency := action.DependsOn[0]
+
 			graph.AddEdge(
-				pertPostID(dependency),
-				pertPreID(action.ID),
+				graph.pertGetDependencyEnd(dependency),
+				pertPostID(action.ID),
 				attrs,
 			)
 		default:
@@ -93,7 +95,7 @@ func FromPertConfig(config PertConfig) *Graph {
 			)
 			for _, dependency := range action.DependsOn {
 				graph.AddEdge(
-					pertPostID(dependency),
+					graph.pertGetDependencyEnd(dependency),
 					pertPreID(action.ID),
 					Attrs{}.SetPertZeroTimeActivity(),
 				)
@@ -124,36 +126,123 @@ func FromPertConfig(config PertConfig) *Graph {
 	}
 
 	for _, vertex := range graph.Vertices() {
-		if vertex.Attrs.GetTitle() == "" {
+		if !pertIsUntitledState(vertex) && vertex.Attrs.GetTitle() == "" {
 			vertex.Attrs.SetTitle(vertex.id)
 		}
 	}
 	if !config.Opts.NoSimplify { // simplify the graph
-		verticesToDelete := map[string]bool{} // creating a map so we can iterate over vertices while deleting some entries
-		for _, vertex := range graph.Vertices() {
-			if pertIsUntitledState(vertex) || true {
-				if vertex.OutDegree() == 1 { // remove dummy states with only one dummy successor
-					successor := vertex.SuccessorEdges()[0]
-					if pertIsZeroTimeActivity(successor) {
-						for _, predecessor := range vertex.PredecessorEdges() {
-							predecessor.dst = successor.dst
-						}
-						graph.RemoveEdge(vertex.id, successor.dst.id)
-						verticesToDelete[vertex.id] = true
-					}
-				}
+		for {
+			pertRemoveDummySteps(graph)
+			pertMergeDummyActionGroups(graph)
+			if removed := graph.gc(); removed == 0 {
+				break
 			}
-		}
-		for id := range verticesToDelete {
-			graph.RemoveVertex(id)
 		}
 	}
 
 	return graph
 }
 
+func pertRemoveDummySteps(graph *Graph) {
+	// remove dummy states with only one dummy successor
+	for _, vertex := range graph.Vertices() {
+		if vertex.deleted || !pertIsUntitledState(vertex) || vertex.OutDegree() != 1 {
+			continue
+		}
+		successor := vertex.SuccessorEdges()[0]
+		if pertIsZeroTimeActivity(successor) {
+			for _, predecessor := range vertex.PredecessorEdges() {
+				predecessor.dst = successor.dst
+			}
+			graph.RemoveEdge(vertex.id, successor.dst.id)
+			vertex.deleted = true
+		}
+	}
+}
+
+func pertMergeDummyActionGroups(graph *Graph) {
+	// merge dummy action groups
+	for _, vertex := range graph.Vertices() {
+		if vertex.deleted || vertex.OutDegree() < 2 {
+			continue
+		}
+		for _, combination := range vertex.SuccessorEdges().AllCombinations().LongestToShortest() {
+			if len(combination) < 2 {
+				continue
+			}
+			onlyActiveDummies := true
+			for _, edge := range combination {
+				if edge.deleted || edge.src.deleted || edge.dst.deleted || !pertIsZeroTimeActivity(edge) {
+					onlyActiveDummies = false
+					break
+				}
+			}
+			if !onlyActiveDummies {
+				continue
+			}
+			predecessors := combination[0].dst.PredecessorVertices()
+			same := true
+			for i := 1; i < len(combination); i++ {
+				if !predecessors.Equals(combination[i].dst.PredecessorVertices()) {
+					same = false
+					break
+				}
+			}
+			if !same {
+				continue
+			}
+			successors := Vertices{}
+			for _, edge := range combination {
+				successors = append(successors, edge.dst)
+			}
+			predecessors = predecessors.Unique()
+			successors = successors.Unique()
+
+			ids := []string{}
+			titles := []string{}
+			for _, successor := range successors {
+				ids = append(ids, successor.id)
+				if title := successor.Attrs.GetTitle(); title != "" {
+					titles = append(titles, title)
+				}
+			}
+			metaID := strings.Join(ids, ",")
+			attrs := Attrs{}
+			if len(titles) > 0 {
+				attrs.SetTitle(strings.Join(titles, " + "))
+			} else {
+				attrs.SetPertUntitledState()
+			}
+			metaVertex := graph.AddVertex(metaID, attrs)
+			for _, predecessor := range predecessors {
+				depID := graph.pertGetDependencyEnd(predecessor.id)
+				graph.AddEdge(depID, metaID, Attrs{}.SetPertZeroTimeActivity())
+			}
+			for _, successor := range successors {
+				for _, successorSuccessor := range successor.successors {
+					successorSuccessor.src = metaVertex
+				}
+				for _, predecessor := range predecessors {
+					graph.RemoveEdge(predecessor.id, successor.id)
+				}
+				successor.deleted = true
+			}
+			break
+		}
+	}
+}
+
 func pertPreID(id string) string  { return fmt.Sprintf("pre_%s", id) }
 func pertPostID(id string) string { return fmt.Sprintf("post_%s", id) }
+
+func (g *Graph) pertGetDependencyEnd(dependency string) string {
+	// if dependency is a vertex, the end is the vertex itself
+	if vertex := g.GetVertex(dependency); vertex != nil {
+		return vertex.id
+	}
+	// else, we need to take the post_{edge}
+	return pertPostID(dependency)
+}
 
 func pertIsZeroTimeActivity(edge *Edge) bool {
 	pert := edge.GetPert()
