@@ -1,5 +1,5 @@
 [build]
-  command = "make _netlify_deps lambda-build"
+  command = "PATH=$PATH:$GOPATH/bin; make _netlify_deps lambda-build"
   functions = "./lambda-build"
   publish = "web"
 
