@@ -1,0 +1,47 @@
+actions:
+  - id: A
+    title: A
+  - id: B
+    title: B
+  - id: C
+    title: C
+  - id: D
+    title: D
+    depends_on: ["3"]
+  - id: E
+    title: E
+    depends_on: ["4"]
+  - id: F
+    title: F
+    depends_on: ["5"]
+  - id: G
+    title: G
+    depends_on: ["6"]
+  - id: H
+    title: H
+  - id: I
+    title: I
+    depends_on: ["7"]
+
+states:
+  - id: "1"
+    title: "1"
+    depends_on: ["A"]
+  - id: "2"
+    title: "2"
+    depends_on: ["B"]
+  - id: "3"
+    title: "3"
+    depends_on: ["C", "1"]
+  - id: "4"
+    title: "4"
+    depends_on: ["1", "2"]
+  - id: "5"
+    title: "5"
+    depends_on: ["1", "2"]
+  - id: "6"
+    title: "6"
+    depends_on: ["1", "2"]
+  - id: "7"
+    title: "7"
+    depends_on: ["2", "H"]

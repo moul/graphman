@@ -105,8 +105,10 @@ func attrsGeneric(a graphman.Attrs, attrs map[string]string, opts *Opts) {
 			case "rankdir", "shape", "style":
 				attrs[k] = v.(string)
 			default:
-				line := fmt.Sprintf("\n%s: %v", k, v)
-				attrs[string(graphviz.Comment)] += line
+				if vStr := fmt.Sprintf("%v", v); vStr != "" {
+					line := fmt.Sprintf("\n%s: %s", k, vStr)
+					attrs[string(graphviz.Comment)] += line
+				}
 			}
 		}
 	}

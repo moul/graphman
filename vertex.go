@@ -20,6 +20,7 @@ type Vertex struct {
 		prev    *Edge
 		visited bool
 	}
+	deleted bool // temporary variable used before a gc()
 }
 
 func newVertex(id string, attrs ...Attrs) *Vertex {
@@ -39,16 +40,19 @@ func newVertex(id string, attrs ...Attrs) *Vertex {
 
 func (v Vertex) IsSource() bool          { return v.InDegree() == 0 }
 func (v Vertex) IsSink() bool            { return v.OutDegree() == 0 }
-func (v Vertex) InDegree() int           { return len(v.predecessors) }
-func (v Vertex) OutDegree() int          { return len(v.successors) }
+func (v Vertex) InDegree() int           { return len(v.PredecessorEdges()) }
+func (v Vertex) OutDegree() int          { return len(v.SuccessorEdges()) }
 func (v Vertex) Degree() int             { return v.InDegree() + v.OutDegree() }
-func (v Vertex) PredecessorEdges() Edges { return v.predecessors }
-func (v Vertex) SuccessorEdges() Edges   { return v.successors }
+func (v Vertex) PredecessorEdges() Edges { return v.predecessors.filtered() }
+func (v Vertex) SuccessorEdges() Edges   { return v.successors.filtered() }
+func (v Vertex) IsIsolated() bool        { return v.Degree() == 0 }
 
 func (v Vertex) PredecessorVertices() Vertices {
 	vertices := Vertices{}
 	for _, edge := range v.predecessors {
-		vertices = append(vertices, edge.src)
+		if !edge.deleted && !edge.src.deleted {
+			vertices = append(vertices, edge.src)
+		}
 	}
 	return vertices.Unique()
 }
@@ -56,26 +60,28 @@ func (v Vertex) PredecessorVertices() Vertices {
 func (v Vertex) SuccessorVertices() Vertices {
 	vertices := Vertices{}
 	for _, edge := range v.successors {
-		vertices = append(vertices, edge.dst)
+		if !edge.deleted && !edge.dst.deleted {
+			vertices = append(vertices, edge.dst)
+		}
 	}
 	return vertices.Unique()
 }
 
-func (v Vertex) IsIsolated() bool {
-	return len(v.predecessors) == 0 && len(v.successors) == 0
-}
-
 func (v Vertex) Edges() Edges {
-	return append(v.predecessors, v.successors...)
+	return append(v.predecessors, v.successors...).filtered()
 }
 
 func (v Vertex) Neighbors() Vertices {
 	neighbors := Vertices{}
 	for _, edge := range v.predecessors {
-		neighbors = append(neighbors, edge.src)
+		if !edge.deleted && !edge.src.deleted {
+			neighbors = append(neighbors, edge.src)
+		}
 	}
 	for _, edge := range v.successors {
-		neighbors = append(neighbors, edge.dst)
+		if !edge.deleted && !edge.dst.deleted {
+			neighbors = append(neighbors, edge.dst)
+		}
 	}
 	return neighbors.Unique()
 }
@@ -98,6 +104,9 @@ func (v *Vertex) WalkSuccessorVertices(fn VerticesWalkFunc) error {
 }
 
 func (v *Vertex) walkSuccessorVerticesRec(fn VerticesWalkFunc, previous *Vertex, depth int, visited map[string]bool) error {
+	if v.deleted {
+		return nil
+	}
 	if visited[v.id] {
 		return nil
 	}
@@ -105,7 +114,7 @@ func (v *Vertex) walkSuccessorVerticesRec(fn VerticesWalkFunc, previous *Vertex,
 	if err := fn(v, previous, depth); err != nil {
 		return err
 	}
-	for _, successor := range v.successors {
+	for _, successor := range v.SuccessorEdges() {
 		if err := successor.dst.walkSuccessorVerticesRec(fn, v, depth+1, visited); err != nil {
 			return err
 		}
@@ -119,6 +128,9 @@ func (v *Vertex) WalkPredecessorVertices(fn VerticesWalkFunc) error {
 }
 
 func (v *Vertex) walkPredecessorVerticesRec(fn VerticesWalkFunc, previous *Vertex, depth int, visited map[string]bool) error {
+	if v.deleted {
+		return nil
+	}
 	if visited[v.id] {
 		return nil
 	}
@@ -126,7 +138,7 @@ func (v *Vertex) walkPredecessorVerticesRec(fn VerticesWalkFunc, previous *Verte
 	if err := fn(v, previous, depth); err != nil {
 		return err
 	}
-	for _, predecessor := range v.predecessors {
+	for _, predecessor := range v.PredecessorEdges() {
 		if err := predecessor.dst.walkPredecessorVerticesRec(fn, v, depth+1, visited); err != nil {
 			return err
 		}
@@ -140,6 +152,9 @@ func (v *Vertex) WalkAdjacentVertices(fn VerticesWalkFunc) error {
 }
 
 func (v *Vertex) walkAdjacentVerticesRec(fn VerticesWalkFunc, previous *Vertex, depth int, visited map[string]bool) error {
+	if v.deleted {
+		return nil
+	}
 	if visited[v.id] {
 		return nil
 	}
@@ -147,12 +162,12 @@ func (v *Vertex) walkAdjacentVerticesRec(fn VerticesWalkFunc, previous *Vertex, 
 	if err := fn(v, previous, depth); err != nil {
 		return err
 	}
-	for _, successor := range v.successors {
+	for _, successor := range v.SuccessorEdges() {
 		if err := successor.dst.walkAdjacentVerticesRec(fn, v, depth+1, visited); err != nil {
 			return err
 		}
 	}
-	for _, predecessor := range v.predecessors {
+	for _, predecessor := range v.PredecessorEdges() {
 		if err := predecessor.src.walkAdjacentVerticesRec(fn, v, depth+1, visited); err != nil {
 			return err
 		}
@@ -178,9 +193,19 @@ func (v Vertices) Len() int           { return len(v) }
 func (v Vertices) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
 func (v Vertices) Less(i, j int) bool { return v[i].id < v[j].id }
 
+func (v Vertices) filtered() Vertices {
+	filtered := Vertices{}
+	for _, vertex := range v {
+		if !vertex.deleted {
+			filtered = append(filtered, vertex)
+		}
+	}
+	return filtered
+}
+
 func (v Vertices) Unique() Vertices {
 	m := map[string]*Vertex{}
-	for _, v := range v {
+	for _, v := range v.filtered() {
 		m[v.id] = v
 	}
 	uniques := Vertices{}
@@ -189,4 +214,20 @@ func (v Vertices) Unique() Vertices {
 	}
 	sort.Sort(uniques)
 	return uniques
+}
+
+func (v Vertices) Equals(other Vertices) bool {
+	tmp := map[*Vertex]int{}
+	for _, vertex := range v.filtered() {
+		tmp[vertex]++
+	}
+	for _, vertex := range other.filtered() {
+		tmp[vertex]--
+	}
+	for _, v := range tmp {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
 }

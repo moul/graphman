@@ -34,7 +34,10 @@ func (a Attrs) String() string {
 	}
 	elems := []string{}
 	for key, val := range a {
-		elems = append(elems, fmt.Sprintf("%v:%v", key, val))
+		valStr := fmt.Sprintf("%v", val)
+		if valStr != "" {
+			elems = append(elems, fmt.Sprintf("%s:%s", key, valStr))
+		}
 	}
 	sort.Strings(elems)
 	return fmt.Sprintf("[%s]", strings.Join(elems, ","))

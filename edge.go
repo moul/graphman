@@ -2,12 +2,18 @@ package graphman
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
+//
+// Edge
+//
+
 type Edge struct {
-	src *Vertex
-	dst *Vertex
+	src     *Vertex
+	dst     *Vertex
+	deleted bool // temporary variable used by gc()
 	Attrs
 }
 
@@ -56,7 +62,21 @@ func (e *Edge) OtherVertex(id string) *Vertex {
 	return nil
 }
 
+//
+// Edges
+//
+
 type Edges []*Edge
+
+func (e Edges) filtered() Edges {
+	filtered := Edges{}
+	for _, edge := range e {
+		if !edge.deleted {
+			filtered = append(filtered, edge)
+		}
+	}
+	return filtered
+}
 
 func (e Edges) String() string {
 	items := []string{}
@@ -64,4 +84,53 @@ func (e Edges) String() string {
 		items = append(items, edge.String())
 	}
 	return fmt.Sprintf("{%s}", strings.Join(items, ","))
+}
+
+func (e Edges) Equals(other Edges) bool {
+	tmp := map[*Edge]int{}
+	for _, edge := range e {
+		tmp[edge]++
+	}
+	for _, edge := range other {
+		tmp[edge]--
+	}
+	for _, v := range tmp {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+// AllCombinations returns the different combinations of Edges in a group of Edges
+//
+// Adapted from https://github.com/mxschmitt/golang-combinations
+func (e Edges) AllCombinations() EdgesCombinations {
+	combinations := EdgesCombinations{}
+	length := uint(len(e))
+
+	for combinationBits := 1; combinationBits < (1 << length); combinationBits++ {
+		var combination Edges
+		for object := uint(0); object < length; object++ {
+			if (combinationBits>>object)&1 == 1 {
+				combination = append(combination, e[object])
+			}
+		}
+		combinations = append(combinations, combination)
+	}
+
+	return combinations
+}
+
+//
+// EdgesCombinations
+//
+
+type EdgesCombinations []Edges
+
+func (ec EdgesCombinations) LongestToShortest() EdgesCombinations {
+	sort.Slice(ec, func(i, j int) bool {
+		return len(ec[i]) > len(ec[j])
+	})
+	return ec
 }
