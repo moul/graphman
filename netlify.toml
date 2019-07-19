@@ -1,11 +1,14 @@
 [build]
-  command = "make lambda-build"
+  command = "PATH=$PATH:$GOPATH/bin; make _netlify_deps lambda-build"
   functions = "./lambda-build"
   publish = "web"
 
+[build.environment]
+  GO_IMPORT_PATH = "moul.io/graphman"
+
 [[redirects]]
   from = "/"
-  to = "https://github.com/moul/graphman"
+  to = "/pertify"
 
 [[redirects]]
   from = "/api/pertify"

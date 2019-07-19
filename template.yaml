@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  PertifyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda-build/pertify
+      Runtime: go1.x
+      Tracing: Active
+      Events:
+        Request:
+          Type: Api
+          Properties:
+            Path: /api/pertify
+            Method: POST
+
+Outputs:
+  GraphmanAPI:
+  PertifyFunction:
+    Value: !GetAtt PertifyFunction.Arn
