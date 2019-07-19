@@ -41,6 +41,6 @@ sam-local: lambda-build
 	@echo ""
 	sam local start-api --static-dir=web
 
-.PHONY: _netlify-deps:
+.PHONY: _netlify-deps
 _netlify_deps:
 	cd; go get moul.io/fs-bundler
