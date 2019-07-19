@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -12,6 +13,9 @@ import (
 )
 
 func handler(request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+	if request.Body == "" {
+		return nil, fmt.Errorf("invalid POST request")
+	}
 	yamlFile := []byte(request.Body)
 
 	var config graphman.PertConfig
