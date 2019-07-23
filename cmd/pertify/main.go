@@ -27,7 +27,7 @@ func main() {
 		Action: graph,
 	}
 	if err := app.Run(os.Args); err != nil {
-		log.Fatal("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 }
 

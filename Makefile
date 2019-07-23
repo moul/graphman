@@ -1,7 +1,8 @@
 .PHONY: test
 test:
-	go test -v ./...
-	cd examples; go test -v ./...
+	set -e; for dir in `find . -type f -name "go.mod"  | sed -r 's@/[^/]+$$@@' | sort | uniq`; do \
+	  (set -xe; cd $$dir; go test -v -cover -race ./...); \
+	done
 
 .PHONY: tidy-all
 tidy-all:

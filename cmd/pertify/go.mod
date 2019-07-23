@@ -2,7 +2,7 @@ module moul.io/cmd/pertify
 
 go 1.12
 
-require moul.io/graphman v0.0.0
+require moul.io/graphman v1.0.0
 
 require (
 	github.com/pkg/errors v0.8.1
