@@ -1,24 +1,44 @@
-.PHONY: test
-test:
-	set -e; for dir in `find . -type f -name "go.mod"  | sed -r 's@/[^/]+$$@@' | sort | uniq`; do \
-	  (set -xe; cd $$dir; go test -v -cover -race ./...); \
-	done
+GO ?= go
+DOCKER_IMAGE ?= moul/graphman
 
-.PHONY: tidy-all
-tidy-all:
-	for file in `find . -name go.mod`; do (dir=`dirname $$file`; set -xe; cd $$dir && go mod tidy); done
+.PHONY: install
+install:
+	cd cmd/pertify; $(GO) install .
+
+.PHONY: test
+test: unittest lint tidy
+
+.PHONY: unittest
+unittest:
+	echo "" > /tmp/coverage.txt
+	set -e; for dir in `find . -type f -name "go.mod" | sed 's@/[^/]*$$@@' | sort | uniq`; do ( set -xe; \
+	  cd $$dir; \
+	  $(GO) test -mod=readonly -v -cover -coverprofile=/tmp/profile.out -covermode=atomic -race ./...; \
+	  if [ -f /tmp/profile.out ]; then \
+	    cat /tmp/profile.out >> /tmp/coverage.txt; \
+	    rm -f /tmp/profile.out; \
+	  fi); done
+	mv /tmp/coverage.txt .
+
+.PHONY: lint
+lint:
+	set -e; for dir in `find . -type f -name "go.mod" | sed 's@/[^/]*$$@@' | sort | uniq`; do ( set -xe; \
+	  cd $$dir; \
+	  golangci-lint run --verbose ./...; \
+	); done
+
+.PHONY: tidy
+tidy:
+	set -e; for dir in `find . -type f -name "go.mod" | sed 's@/[^/]*$$@@' | sort | uniq`; do ( set -xe; \
+	  cd $$dir; \
+	  $(GO)	mod tidy; \
+	); done
+
+
 
 web/pertify/examples.js: $(wildcard ./examples/pertify/*.yml)
 	@# go get moul.io/fs-bundler
 	cd examples/pertify; fs-bundler --format=js --callback=examples *.yml > ../../$@
-
-.PHONY: install
-install:
-	cd cmd/pertify; go install
-
-.PHONY: lint
-lint:
-	golangci-lint run --verbose ./...
 
 .PHONY: release
 release:
@@ -45,3 +65,11 @@ sam-local: lambda-build
 .PHONY: _netlify-deps
 _netlify_deps:
 	cd; go get moul.io/fs-bundler
+
+.PHONY: docker
+docker:
+	docker build \
+	  --build-arg VCS_REF=`git rev-parse --short HEAD` \
+	  --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+	  --build-arg VERSION=`git describe --tags --always` \
+	  -t $(DOCKER_IMAGE) .
