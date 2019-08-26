@@ -4,5 +4,5 @@ go 1.12
 
 require (
 	github.com/awalterschulze/gographviz v0.0.0-20190522210029-fa59802746ab
-	moul.io/graphman v1.0.0
+	moul.io/graphman v1.2.0
 )
