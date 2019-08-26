@@ -1,17 +1,23 @@
-# Generated files
-web/pertify/examples.js
+##
+## Specific to .dockerignore
+##
+
+.git/
+Dockerfile
+contrib/
+
+##
+## Common with .gitignore
+##
 
 # Temporary files
 *~
 *#
 .#*
-covrage.txt
 
 # Vendors
 node_modules/
 vendor/
-
-/lambda-build
 
 # Binaries for programs and plugins
 dist/

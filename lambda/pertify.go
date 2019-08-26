@@ -56,7 +56,7 @@ func handler(request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResp
 
 	return &events.APIGatewayProxyResponse{
 		StatusCode: 200,
-		Body:       string(s),
+		Body:       s,
 		Headers: map[string]string{
 			"Content-Type": "text/plain; charset=utf-8", // FIXME: graphviz content-type
 		},
