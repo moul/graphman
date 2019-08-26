@@ -23,7 +23,8 @@ type PertConfig struct {
 	Actions []PertAction `yaml:"actions"`
 	States  []PertState  `yaml:"states"`
 	Opts    struct {
-		NoSimplify bool `yaml:"simplify"`
+		NoSimplify   bool `yaml:"simplify"`
+		StandardPert bool `yaml:"standard-pert"`
 	} `yaml:"opts"`
 }
 
@@ -71,34 +72,56 @@ func FromPertConfig(config PertConfig) *Graph {
 			log.Printf("invalid pert estimate: %v", action.Estimate)
 		}
 
-		// relationships
-		switch len(action.DependsOn) {
-		case 0: // no dependency, linking with Start
-			graph.AddEdge(
-				pertStartVertex,
-				pertPostID(action.ID),
-				attrs,
-			)
-		case 1: // only one dependency
-			dependency := action.DependsOn[0]
+		if !config.Opts.StandardPert {
+			graph.AddVertex(action.ID, attrs)
+			// relationships
+			switch len(action.DependsOn) {
+			case 0: // no dependency, linking with Start
+				graph.AddEdge(
+					pertStartVertex,
+					action.ID,
+					// Attrs{}.SetPertZeroTimeActivity(),
+				)
+			default:
+				for _, dependency := range action.DependsOn {
+					graph.AddEdge(
+						dependency,
+						action.ID,
+						// Attrs{}.SetPertZeroTimeActivity(),
+					)
+				}
+			}
 
-			graph.AddEdge(
-				graph.pertGetDependencyEnd(dependency),
-				pertPostID(action.ID),
-				attrs,
-			)
-		default:
-			graph.AddEdge(
-				pertPreID(action.ID),
-				pertPostID(action.ID),
-				attrs,
-			)
-			for _, dependency := range action.DependsOn {
+		} else {
+			// relationships
+			switch len(action.DependsOn) {
+			case 0: // no dependency, linking with Start
+				graph.AddEdge(
+					pertStartVertex,
+					pertPostID(action.ID),
+					attrs,
+				)
+			case 1: // only one dependency
+				dependency := action.DependsOn[0]
+
 				graph.AddEdge(
 					graph.pertGetDependencyEnd(dependency),
-					pertPreID(action.ID),
-					Attrs{}.SetPertZeroTimeActivity(),
+					pertPostID(action.ID),
+					attrs,
 				)
+			default:
+				graph.AddEdge(
+					pertPreID(action.ID),
+					pertPostID(action.ID),
+					attrs,
+				)
+				for _, dependency := range action.DependsOn {
+					graph.AddEdge(
+						graph.pertGetDependencyEnd(dependency),
+						pertPreID(action.ID),
+						Attrs{}.SetPertZeroTimeActivity(),
+					)
+				}
 			}
 		}
 	}

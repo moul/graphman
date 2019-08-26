@@ -46,6 +46,8 @@ actions:
     title: "Paint outside"
     estimate: [1, 2, 3]
     depends_on: ["8", "9"]
+opts:
+  standard-pert: true
 `
 	var config PertConfig
 	if err := yaml.Unmarshal([]byte(yamlConfig), &config); err != nil {

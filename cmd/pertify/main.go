@@ -22,6 +22,7 @@ func main() {
 			&cli.BoolFlag{Name: "vertical", Usage: "displaying steps from top to bottom"},
 			&cli.BoolFlag{Name: "with-details", Usage: "Show pert numbers"},
 			&cli.BoolFlag{Name: "no-simplify", Usage: "Don't simplify the graph"},
+			&cli.BoolFlag{Name: "standard-pert", Usage: "Use edges for actions instead of vertices"},
 			&cli.BoolFlag{Name: "debug", Aliases: []string{"D"}, Usage: "verbose mode"},
 		},
 		Action: graph,
