@@ -102,7 +102,7 @@ func attrsGeneric(a graphman.Attrs, attrs map[string]string, opts *Opts) {
 		attrs[string(graphviz.Comment)] = ""
 		for k, v := range ac {
 			switch k {
-			case "rankdir", "shape", "style":
+			case "rankdir", "shape", "style", "size", "layout", "overlap", "splines", "pack", "start", "sep":
 				attrs[k] = v.(string)
 			default:
 				if vStr := fmt.Sprintf("%v", v); vStr != "" {
