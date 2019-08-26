@@ -15,8 +15,11 @@ const (
 
 type PertAttrs struct {
 	Pessimistic, Realistic, Optimistic float64
-	IsZeroTimeActivity                 bool
-	IsUntitledState                    bool
+	IsZeroTimeActivity                 bool // a.k.a DummyActivity
+	IsUntitled                         bool
+	IsAction, IsState                  bool
+	IsNonStandardGraph                 bool
+	IsStart, IsFinish                  bool
 }
 
 func (pa PertAttrs) WeightedEstimate() float64 {

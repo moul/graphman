@@ -70,9 +70,12 @@ netlify: _netlify_deps lambda-build install
 .PHONY: sam-local
 sam-local: lambda-build
 	@echo ""
-	@echo "Open: http://localhost:3000/pertify/index.html"
+	@echo "Open: http://localhost:8080/pertify/index.html"
 	@echo ""
-	sam local start-api --static-dir=web
+	sam local start-api --host=0.0.0.0 --port=8080 --static-dir=web
+
+.PHONY: netlify
+netlify: _netlify-deps lambda-build
 
 .PHONY: _netlify-deps
 _netlify_deps:

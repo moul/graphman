@@ -56,26 +56,52 @@ func (a Attrs) GetTitle() string {
 	return ""
 }
 
-func (a Attrs) SetPertEstimates(opt, real, pess float64) Attrs {
-	a["pert"] = &PertAttrs{
-		Optimistic:  opt,
-		Realistic:   real,
-		Pessimistic: pess,
+func (a Attrs) getOrCreatePert() *PertAttrs {
+	if _, ok := a["pert"]; !ok {
+		a["pert"] = &PertAttrs{}
 	}
+	return a["pert"].(*PertAttrs)
+}
+
+func (a Attrs) SetPertEstimates(opt, real, pess float64) Attrs {
+	pert := a.getOrCreatePert()
+	pert.Optimistic = opt
+	pert.Realistic = real
+	pert.Pessimistic = pess
+	pert.IsAction = true
+	pert.IsState = false
 	return a
 }
 
-func (a Attrs) SetPertUntitledState() Attrs {
-	a["pert"] = &PertAttrs{
-		IsUntitledState: true,
-	}
+func (a Attrs) SetPertState() Attrs {
+	pert := a.getOrCreatePert()
+	pert.IsAction = false
+	pert.IsState = true
+	return a
+}
+
+func (a Attrs) SetPertAction() Attrs {
+	pert := a.getOrCreatePert()
+	pert.IsAction = true
+	pert.IsState = false
+	return a
+}
+
+func (a Attrs) SetPertUntitled() Attrs {
+	pert := a.getOrCreatePert()
+	pert.IsUntitled = true
 	return a
 }
 
 func (a Attrs) SetPertZeroTimeActivity() Attrs {
-	a["pert"] = &PertAttrs{
-		IsZeroTimeActivity: true,
-	}
+	pert := a.getOrCreatePert()
+	pert.IsZeroTimeActivity = true
+	return a
+}
+
+func (a Attrs) SetPertNonStandardGraph() Attrs {
+	pert := a.getOrCreatePert()
+	pert.IsNonStandardGraph = true
 	return a
 }
 
