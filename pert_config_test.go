@@ -46,6 +46,8 @@ actions:
     title: "Paint outside"
     estimate: [1, 2, 3]
     depends_on: ["8", "9"]
+opts:
+  standard-pert: true
 `
 	var config PertConfig
 	if err := yaml.Unmarshal([]byte(yamlConfig), &config); err != nil {
@@ -55,5 +57,5 @@ actions:
 	graph := FromPertConfig(config)
 	fmt.Println(graph)
 	// Output:
-	// {(Start,pre_5)[[pert:To=4,Tm=6,Tp=10,Te=6.33,σe=1,Ve=1,title:Prepare foundation]],(Start,pre_5)[[pert:To=2,Tm=4,Tp=7,Te=4.17,σe=0.83,Ve=0.69,title:Make & position door frames]],(Start,pre_9)[[pert:To=7,Tm=9,Tp=12,Te=9.17,σe=0.83,Ve=0.69,title:Lay drains & floor base]],(post_5,pre_6)[[pert:To=2,Tm=4,Tp=5,Te=3.83,σe=0.5,Ve=0.25,title:Install service & settings]],(pre_5,post_5)[[pert:To=7,Tm=10,Tp=15,Te=10.33,σe=1.33,Ve=1.78,title:Erect walls]],(pre_6,pre_9)[[pert:To=1,Tm=2,Tp=4,Te=2.17,σe=0.5,Ve=0.25,title:Plaster ceilings]],(post_7,pre_6)[[]],(post_5,post_7)[[pert:To=4,Tm=6,Tp=8,Te=6,σe=0.67,Ve=0.44,title:Erect roof]],(post_7,pre_10)[[pert:To=7,Tm=9,Tp=11,Te=9,σe=0.67,Ve=0.44,title:Install door & windows]],(pre_9,pre_10)[[pert:To=1,Tm=2,Tp=3,Te=2,σe=0.33,Ve=0.11,title:Fit gutters & pipes]],(pre_10,Finish)[[pert:To=1,Tm=2,Tp=3,Te=2,σe=0.33,Ve=0.11,title:Paint outside]],Finish}
+	// {(Start,post_1)[[pert:To=4,Tm=6,Tp=10,Te=6.33,σe=1,Ve=1,title:Prepare foundation]],(Start,post_2)[[pert:To=2,Tm=4,Tp=7,Te=4.17,σe=0.83,Ve=0.69,title:Make & position door frames]],(Start,post_3)[[pert:To=7,Tm=9,Tp=12,Te=9.17,σe=0.83,Ve=0.69,title:Lay drains & floor base]],(post_5,pre_4)[[pert:To=2,Tm=4,Tp=5,Te=3.83,σe=0.5,Ve=0.25,title:Install service & settings]],(pre_5,post_5)[[pert:To=7,Tm=10,Tp=15,Te=10.33,σe=1.33,Ve=1.78,title:Erect walls]],(post_1,pre_5)[[]],(post_2,pre_5)[[]],(pre_6,post_6)[[pert:To=1,Tm=2,Tp=4,Te=2.17,σe=0.5,Ve=0.25,title:Plaster ceilings]],(post_4,pre_6)[[]],(post_7,pre_6)[[]],(post_5,pre_7)[[pert:To=4,Tm=6,Tp=8,Te=6,σe=0.67,Ve=0.44,title:Erect roof]],(post_7,pre_8)[[pert:To=7,Tm=9,Tp=11,Te=9,σe=0.67,Ve=0.44,title:Install door & windows]],(pre_9,post_9)[[pert:To=1,Tm=2,Tp=3,Te=2,σe=0.33,Ve=0.11,title:Fit gutters & pipes]],(post_3,pre_9)[[]],(post_6,pre_9)[[]],(pre_10,post_10)[[pert:To=1,Tm=2,Tp=3,Te=2,σe=0.33,Ve=0.11,title:Paint outside]],(post_8,pre_10)[[]],(post_9,pre_10)[[]],(pre_4,Finish)[[]],(pre_7,Finish)[[]],(pre_8,Finish)[[]],(post_10,Finish)[[]]}
 }

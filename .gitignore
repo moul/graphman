@@ -6,7 +6,7 @@ web/pertify/examples/
 *~
 *#
 .#*
-covrage.txt
+coverage.txt
 
 # Vendors
 node_modules/

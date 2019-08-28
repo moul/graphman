@@ -23,7 +23,8 @@ type PertConfig struct {
 	Actions []PertAction `yaml:"actions"`
 	States  []PertState  `yaml:"states"`
 	Opts    struct {
-		NoSimplify bool `yaml:"simplify"`
+		NoSimplify   bool `yaml:"no-simplify"`
+		StandardPert bool `yaml:"standard-pert"`
 	} `yaml:"opts"`
 }
 
@@ -35,28 +36,27 @@ const (
 func FromPertConfig(config PertConfig) *Graph {
 	graph := New()
 
-	graph.AddVertex(pertStartVertex)
-	graph.AddVertex(pertFinishVertex)
+	graph.AddVertex(pertStartVertex, Attrs{"pert": &PertAttrs{IsStart: true}})
+	graph.AddVertex(pertFinishVertex, Attrs{"pert": &PertAttrs{IsFinish: true}})
 
 	for _, state := range config.States {
 		attrs := Attrs{}
+		attrs.SetPertState()
 		if state.Title != "" {
 			attrs.SetTitle(state.Title)
+		} else {
+			attrs.SetPertUntitled()
 		}
 		graph.AddVertex(state.ID, attrs)
-		for _, dependency := range state.DependsOn {
-			graph.AddEdge(
-				graph.pertGetDependencyEnd(dependency),
-				state.ID,
-				Attrs{}.SetPertZeroTimeActivity(),
-			)
-		}
 	}
 
 	for _, action := range config.Actions {
 		attrs := Attrs{}
+		attrs.SetPertAction()
 		if action.Title != "" {
 			attrs.SetTitle(action.Title)
+		} else {
+			attrs.SetTitle(action.ID)
 		}
 
 		// pert estimates
@@ -71,35 +71,67 @@ func FromPertConfig(config PertConfig) *Graph {
 			log.Printf("invalid pert estimate: %v", action.Estimate)
 		}
 
-		// relationships
-		switch len(action.DependsOn) {
-		case 0: // no dependency, linking with Start
-			graph.AddEdge(
-				pertStartVertex,
-				pertPostID(action.ID),
-				attrs,
-			)
-		case 1: // only one dependency
-			dependency := action.DependsOn[0]
+		if !config.Opts.StandardPert {
+			graph.AddVertex(action.ID, attrs)
+			// relationships
+			switch len(action.DependsOn) {
+			case 0: // no dependency, linking with Start
+				graph.AddEdge(
+					pertStartVertex,
+					action.ID,
+					Attrs{}.SetPertZeroTimeActivity(),
+				)
+			default:
+				for _, dependency := range action.DependsOn {
+					graph.AddEdge(
+						dependency,
+						action.ID,
+						Attrs{}.SetPertZeroTimeActivity(),
+					)
+				}
+			}
 
-			graph.AddEdge(
-				graph.pertGetDependencyEnd(dependency),
-				pertPostID(action.ID),
-				attrs,
-			)
-		default:
-			graph.AddEdge(
-				pertPreID(action.ID),
-				pertPostID(action.ID),
-				attrs,
-			)
-			for _, dependency := range action.DependsOn {
+		} else {
+			// relationships
+			switch len(action.DependsOn) {
+			case 0: // no dependency, linking with Start
+				graph.AddEdge(
+					pertStartVertex,
+					pertPostID(action.ID),
+					attrs,
+				)
+			case 1: // only one dependency
+				dependency := action.DependsOn[0]
+
 				graph.AddEdge(
 					graph.pertGetDependencyEnd(dependency),
 					pertPreID(action.ID),
-					Attrs{}.SetPertZeroTimeActivity(),
+					attrs,
 				)
+			default:
+				graph.AddEdge(
+					pertPreID(action.ID),
+					pertPostID(action.ID),
+					attrs,
+				)
+				for _, dependency := range action.DependsOn {
+					graph.AddEdge(
+						graph.pertGetDependencyEnd(dependency),
+						pertPreID(action.ID),
+						Attrs{}.SetPertZeroTimeActivity(),
+					)
+				}
 			}
+		}
+	}
+
+	for _, state := range config.States {
+		for _, dependency := range state.DependsOn {
+			graph.AddEdge(
+				graph.pertGetDependencyEnd(dependency),
+				state.ID,
+				Attrs{}.SetPertZeroTimeActivity(),
+			)
 		}
 	}
 
@@ -115,21 +147,6 @@ func FromPertConfig(config PertConfig) *Graph {
 		)
 	}
 
-	// nice names
-	for _, vertex := range graph.Vertices() {
-		if vertex.id == pertStartVertex || vertex.id == pertFinishVertex {
-			continue
-		}
-		if vertex.Attrs.GetTitle() == "" {
-			vertex.Attrs.SetPertUntitledState()
-		}
-	}
-
-	for _, vertex := range graph.Vertices() {
-		if !pertIsUntitledState(vertex) && vertex.Attrs.GetTitle() == "" {
-			vertex.Attrs.SetTitle(vertex.id)
-		}
-	}
 	if !config.Opts.NoSimplify { // simplify the graph
 		for {
 			pertRemoveDummySteps(graph)
@@ -140,13 +157,19 @@ func FromPertConfig(config PertConfig) *Graph {
 		}
 	}
 
+	for _, edge := range graph.Vertices() {
+		if !config.Opts.StandardPert {
+			edge.SetPertNonStandardGraph()
+		}
+	}
+
 	return graph
 }
 
 func pertRemoveDummySteps(graph *Graph) {
 	// remove dummy states with only one dummy successor
 	for _, vertex := range graph.Vertices() {
-		if vertex.deleted || !pertIsUntitledState(vertex) || vertex.OutDegree() != 1 {
+		if vertex.deleted || !pertIsUntitled(vertex) || vertex.OutDegree() != 1 || vertex.InDegree() == 0 || pertHasEstimates(vertex) {
 			continue
 		}
 		successor := vertex.SuccessorEdges()[0]
@@ -206,12 +229,15 @@ func pertMergeDummyActionGroups(graph *Graph) {
 					titles = append(titles, title)
 				}
 			}
+			if len(titles) > 0 {
+				continue
+			}
 			metaID := strings.Join(ids, ",")
 			attrs := Attrs{}
 			if len(titles) > 0 {
 				attrs.SetTitle(strings.Join(titles, " + "))
 			} else {
-				attrs.SetPertUntitledState()
+				attrs.SetPertUntitled()
 			}
 			metaVertex := graph.AddVertex(metaID, attrs)
 			for _, predecessor := range predecessors {
@@ -249,7 +275,12 @@ func pertIsZeroTimeActivity(edge *Edge) bool {
 	return pert != nil && pert.IsZeroTimeActivity
 }
 
-func pertIsUntitledState(vertex *Vertex) bool {
+func pertIsUntitled(vertex *Vertex) bool {
 	pert := vertex.GetPert()
-	return pert != nil && pert.IsUntitledState
+	return pert != nil && pert.IsUntitled
+}
+
+func pertHasEstimates(vertex *Vertex) bool {
+	pert := vertex.GetPert()
+	return pert != nil && pert.Realistic != 0
 }

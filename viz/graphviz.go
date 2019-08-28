@@ -2,6 +2,7 @@ package viz // import "moul.io/graphman/viz"
 
 import (
 	"fmt"
+	"log"
 
 	graphviz "github.com/awalterschulze/gographviz"
 	"moul.io/graphman"
@@ -58,14 +59,28 @@ func attrsFromGraph(graph *graphman.Graph, opts *Opts) map[string]string {
 
 func attrsFromVertex(vertex *graphman.Vertex, opts *Opts) map[string]string {
 	attrs := map[string]string{}
-	attrs[string(graphviz.Shape)] = "box"
-	attrs[string(graphviz.Style)] = "rounded"
-	attrs[string(graphviz.Label)] = vertex.ID()
 	if pert := vertex.Attrs.GetPert(); pert != nil {
-		if pert.IsUntitledState {
+		switch {
+		case pert.IsStart || pert.IsFinish:
+			attrs[string(graphviz.Shape)] = "diamond"
+			attrs[string(graphviz.Style)] = "rounded"
+			attrs[string(graphviz.Label)] = vertex.ID()
+		case pert.IsAction:
+			attrs[string(graphviz.Shape)] = "box"
+			attrs[string(graphviz.Style)] = "rounded"
+			attrs[string(graphviz.Label)] = vertex.ID()
+		case pert.IsState && !pert.IsUntitled: // milestone
+			attrs[string(graphviz.Shape)] = "box"
+			attrs[string(graphviz.Style)] = "\"bold,rounded\""
+			attrs[string(graphviz.Label)] = vertex.ID()
+		case pert.IsState && pert.IsUntitled:
 			attrs[string(graphviz.Label)] = " "
 			attrs[string(graphviz.Shape)] = "circle"
 			// attrs[string(graphviz.Style)] = "dashed"
+		default:
+			log.Printf("cannot determine pert style: %v", pert)
+			attrs[string(graphviz.Label)] = fmt.Sprintf("error: %q", vertex.ID())
+			attrs[string(graphviz.Shape)] = "doubleoctagon"
 		}
 	}
 	attrsGeneric(vertex.Attrs, attrs, opts)
@@ -76,7 +91,7 @@ func attrsFromEdge(edge *graphman.Edge, opts *Opts) map[string]string {
 	attrs := map[string]string{}
 	attrs[string(graphviz.Label)] = ""
 	if pert := edge.Attrs.GetPert(); pert != nil {
-		if pert.IsZeroTimeActivity {
+		if pert.IsZeroTimeActivity && pert.IsNonStandardGraph {
 			attrs[string(graphviz.Style)] = "dashed"
 		}
 	}
