@@ -4,9 +4,9 @@ go 1.12
 
 require (
 	github.com/pkg/errors v0.8.1
-	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8
-	gopkg.in/yaml.v3 v3.0.0-20190705120443-117fdf03f45f
-	moul.io/graphman v1.0.0
+	gopkg.in/urfave/cli.v2 v2.0.0-20190806201727-b62605953717
+	gopkg.in/yaml.v3 v3.0.0-20190709130402-674ba3eaed22
+	moul.io/graphman v1.2.0
 	moul.io/graphman/viz v0.0.0
 )
 
