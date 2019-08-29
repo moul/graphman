@@ -104,7 +104,7 @@ func FromPertConfig(config PertConfig) *Graph {
 				dependency := action.DependsOn[0]
 
 				graph.AddEdge(
-					graph.pertGetDependencyEnd(dependency),
+					graph.pertGetDependencyEnd(dependency, config),
 					pertPreID(action.ID),
 					attrs,
 				)
@@ -116,7 +116,7 @@ func FromPertConfig(config PertConfig) *Graph {
 				)
 				for _, dependency := range action.DependsOn {
 					graph.AddEdge(
-						graph.pertGetDependencyEnd(dependency),
+						graph.pertGetDependencyEnd(dependency, config),
 						pertPreID(action.ID),
 						Attrs{}.SetPertZeroTimeActivity(),
 					)
@@ -128,7 +128,7 @@ func FromPertConfig(config PertConfig) *Graph {
 	for _, state := range config.States {
 		for _, dependency := range state.DependsOn {
 			graph.AddEdge(
-				graph.pertGetDependencyEnd(dependency),
+				graph.pertGetDependencyEnd(dependency, config),
 				state.ID,
 				Attrs{}.SetPertZeroTimeActivity(),
 			)
@@ -149,24 +149,27 @@ func FromPertConfig(config PertConfig) *Graph {
 
 	if !config.Opts.NoSimplify { // simplify the graph
 		for {
-			pertRemoveDummySteps(graph)
-			pertMergeDummyActionGroups(graph)
+			pertRemoveDummySteps(graph, config)
+			pertMergeDummyActionGroups(graph, config)
 			if removed := graph.gc(); removed == 0 {
 				break
 			}
 		}
 	}
 
-	for _, edge := range graph.Vertices() {
+	for _, vertex := range graph.Vertices() {
+		if pert := vertex.GetPert(); pert == nil {
+			vertex.Attrs.SetPertUndefinedDependency()
+		}
 		if !config.Opts.StandardPert {
-			edge.SetPertNonStandardGraph()
+			vertex.SetPertNonStandardGraph()
 		}
 	}
 
 	return graph
 }
 
-func pertRemoveDummySteps(graph *Graph) {
+func pertRemoveDummySteps(graph *Graph, config PertConfig) {
 	// remove dummy states with only one dummy successor
 	for _, vertex := range graph.Vertices() {
 		if vertex.deleted || !pertIsUntitled(vertex) || vertex.OutDegree() != 1 || vertex.InDegree() == 0 || pertHasEstimates(vertex) {
@@ -183,7 +186,7 @@ func pertRemoveDummySteps(graph *Graph) {
 	}
 }
 
-func pertMergeDummyActionGroups(graph *Graph) {
+func pertMergeDummyActionGroups(graph *Graph, config PertConfig) {
 	// merge dummy action groups
 	for _, vertex := range graph.Vertices() {
 		if vertex.deleted || vertex.OutDegree() < 2 {
@@ -241,7 +244,7 @@ func pertMergeDummyActionGroups(graph *Graph) {
 			}
 			metaVertex := graph.AddVertex(metaID, attrs)
 			for _, predecessor := range predecessors {
-				depID := graph.pertGetDependencyEnd(predecessor.id)
+				depID := graph.pertGetDependencyEnd(predecessor.id, config)
 				graph.AddEdge(depID, metaID, Attrs{}.SetPertZeroTimeActivity())
 			}
 			for _, successor := range successors {
@@ -261,7 +264,11 @@ func pertMergeDummyActionGroups(graph *Graph) {
 func pertPreID(id string) string  { return fmt.Sprintf("pre_%s", id) }
 func pertPostID(id string) string { return fmt.Sprintf("post_%s", id) }
 
-func (g *Graph) pertGetDependencyEnd(dependency string) string {
+func (g *Graph) pertGetDependencyEnd(dependency string, config PertConfig) string {
+	if !config.Opts.StandardPert {
+		return dependency
+	}
+
 	// if dependency is a vertex, the end is the vertex itself
 	if vertex := g.GetVertex(dependency); vertex != nil {
 		return vertex.id
