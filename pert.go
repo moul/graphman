@@ -20,6 +20,7 @@ type PertAttrs struct {
 	IsAction, IsState                  bool
 	IsNonStandardGraph                 bool
 	IsStart, IsFinish                  bool
+	IsUndefinedDependency              bool
 }
 
 func (pa PertAttrs) WeightedEstimate() float64 {

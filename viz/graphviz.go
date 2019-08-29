@@ -77,6 +77,9 @@ func attrsFromVertex(vertex *graphman.Vertex, opts *Opts) map[string]string {
 			attrs[string(graphviz.Label)] = " "
 			attrs[string(graphviz.Shape)] = "circle"
 			// attrs[string(graphviz.Style)] = "dashed"
+		case pert.IsUndefinedDependency:
+			attrs[string(graphviz.Label)] = fmt.Sprintf("undefined dependency: %q", vertex.ID())
+			attrs[string(graphviz.Shape)] = "octagon"
 		default:
 			log.Printf("cannot determine pert style: %v", pert)
 			attrs[string(graphviz.Label)] = fmt.Sprintf("error: %q", vertex.ID())

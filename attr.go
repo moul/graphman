@@ -63,6 +63,12 @@ func (a Attrs) getOrCreatePert() *PertAttrs {
 	return a["pert"].(*PertAttrs)
 }
 
+func (a Attrs) SetPertUndefinedDependency() Attrs {
+	pert := a.getOrCreatePert()
+	pert.IsUndefinedDependency = true
+	return a
+}
+
 func (a Attrs) SetPertEstimates(opt, real, pess float64) Attrs {
 	pert := a.getOrCreatePert()
 	pert.Optimistic = opt
