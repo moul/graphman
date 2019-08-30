@@ -2,10 +2,12 @@ module moul.io/graphman/examples
 
 go 1.12
 
-require moul.io/graphman v1.4.0
+require (
+	moul.io/graphman v1.5.0
+	moul.io/graphman/viz v1.5.0
+)
 
-require moul.io/graphman/viz v0.0.0
-
-replace moul.io/graphman => ../
-
-replace moul.io/graphman/viz => ../viz/
+replace (
+	moul.io/graphman => ../
+	moul.io/graphman/viz => ../viz/
+)
