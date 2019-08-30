@@ -192,7 +192,11 @@ func pertMergeDummyActionGroups(graph *Graph, config PertConfig) {
 		if vertex.deleted || vertex.OutDegree() < 2 {
 			continue
 		}
-		for _, combination := range vertex.SuccessorEdges().AllCombinations().LongestToShortest() {
+		successorEdges := vertex.SuccessorEdges()
+		if len(successorEdges) > 10 { // bigger values means too long computing time
+			continue
+		}
+		for _, combination := range successorEdges.AllCombinations().LongestToShortest() {
 			if len(combination) < 2 {
 				continue
 			}
