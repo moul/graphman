@@ -306,6 +306,18 @@ func (g *Graph) String() string {
 	return fmt.Sprintf("{%s}", strings.Join(elems, ","))
 }
 
+// Human returns a diff-friendly and human-readable representation of the vertices and edges
+func (g *Graph) Human() string {
+	out := ""
+	for _, vertex := range g.Vertices() {
+		out += fmt.Sprintf("* %s\n", vertex.ID())
+		for _, edge := range vertex.Edges() {
+			out += fmt.Sprintf("  * %s\n", edge.String())
+		}
+	}
+	return out
+}
+
 //
 // Graphs
 //
