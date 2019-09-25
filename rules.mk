@@ -56,6 +56,7 @@ endif
 endif
 ifdef GOPKG
 GO ?= go
+GOPATH ?= $(HOME)/go
 
 ifdef GOBINS
 .PHONY: go.install
@@ -114,11 +115,20 @@ go.bumpdeps:
 	  $(GO)	get -u ./...; \
 	); done
 
+.PHONY: go.bump-deps
+go.fmt:
+	if ! command -v goimports &>/dev/null; then GO111MODULE=off go get golang.org/x/tools/cmd/goimports; fi
+	@set -e; for dir in `find . -type f -name "go.mod" | sed 's@/[^/]*$$@@' | sort | uniq`; do ( set -xe; \
+	  cd $$dir; \
+	  goimports -w . \
+	); done
+
 BUILD_STEPS += go.build
 BUMPDEPS_STEPS += go.bumpdeps
 TIDY_STEPS += go.tidy
 LINT_STEPS += go.lint
 UNITTEST_STEPS += go.unittest
+FMT_STEPS += go.fmt
 endif
 
 ##
@@ -153,6 +163,7 @@ DOCKER_IMAGE = $(notdir $(PWD))
 endif
 endif
 ifdef DOCKER_IMAGE
+ifneq ($(DOCKER_IMAGE),none)
 .PHONY: docker.build
 docker.build:
 	docker build \
@@ -162,6 +173,7 @@ docker.build:
 	  -t $(DOCKER_IMAGE) .
 
 BUILD_STEPS += docker.build
+endif
 endif
 
 ##
@@ -190,7 +202,7 @@ endif
 
 ifdef LINT_STEPS
 .PHONY: lint
-lint: $(LINT_STEPS)
+lint: $(FMT_STEPS) $(LINT_STEPS)
 endif
 
 ifdef TIDY_STEPS
@@ -213,6 +225,11 @@ ifdef BUMPDEPS_STEPS
 bumpdeps: $(BUMPDEPS_STEPS)
 endif
 
+ifdef FMT_STEPS
+.PHONY: fmt
+fmt: $(FMT_STEPS)
+endif
+
 ifdef GENERATE_STEPS
 .PHONY: generate
 generate: $(GENERATE_STEPS)
@@ -223,6 +240,7 @@ help:
 	@echo "General commands:"
 	@[ "$(BUILD_STEPS)" != "" ]     && echo "  build"     || true
 	@[ "$(BUMPDEPS_STEPS)" != "" ]  && echo "  bumpdeps"  || true
+	@[ "$(FMT_STEPS)" != "" ]       && echo "  fmt"       || true
 	@[ "$(GENERATE_STEPS)" != "" ]  && echo "  generate"  || true
 	@[ "$(INSTALL_STEPS)" != "" ]   && echo "  install"   || true
 	@[ "$(LINT_STEPS)" != "" ]      && echo "  lint"      || true
