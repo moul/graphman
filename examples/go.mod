@@ -1,6 +1,6 @@
 module moul.io/graphman/examples
 
-go 1.12
+go 1.13
 
 require (
 	moul.io/graphman v1.5.0

@@ -4,7 +4,7 @@ GOBINS ?=	./cmd/pertify
 
 all: test install
 
--include rules.mk
+include rules.mk
 
 web/pertify/examples.js: $(wildcard ./examples/pertify/*.yml)
 	cd examples/pertify; fs-bundler --format=js --callback=examples *.yml > ../../$@
@@ -47,3 +47,4 @@ netlify: _netlify-deps lambda-build
 _netlify_deps:
 	cd; go get moul.io/fs-bundler
 	cd cmd/pertify; $(GO) get -v .
+	cd lambda; $(GO) get -v .
