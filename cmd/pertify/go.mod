@@ -7,7 +7,7 @@ require (
 	gopkg.in/urfave/cli.v2 v2.0.0-20190806201727-b62605953717
 	gopkg.in/yaml.v3 v3.0.0-20190709130402-674ba3eaed22
 	moul.io/graphman v1.6.0
-	moul.io/graphman/viz v0.0.0
+	moul.io/graphman/viz v1.6.0
 )
 
 replace moul.io/graphman => ../../
