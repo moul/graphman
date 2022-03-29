@@ -7,5 +7,5 @@ COPY            . ./
 RUN             make install
 
 # minimalist runtime
-FROM alpine:3.14.0
+FROM alpine:3.15.3
 COPY            --from=builder /go/bin/pertify /bin/
